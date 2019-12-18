@@ -1,7 +1,6 @@
 package com.example.alwaysonrecorder.Service
 
-import android.Manifest.permission.RECORD_AUDIO
-import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.Manifest.permission.*
 import android.R
 import android.app.PendingIntent
 import android.app.Service
@@ -14,7 +13,8 @@ import android.os.IBinder
 import android.widget.Toast
 import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.core.app.NotificationCompat
-import com.example.alwaysonrecorder.EventBus
+import com.example.alwaysonrecorder.Events.EventBus
+import com.example.alwaysonrecorder.Events.RecordingsUpdatedEvent
 import com.example.alwaysonrecorder.Events.RequestPermissionsEvent
 import com.example.alwaysonrecorder.Events.RequestPermissionsResponseEvent
 import com.example.alwaysonrecorder.MainActivity
@@ -27,17 +27,26 @@ import java.util.*
 
 class MainService : Service() {
 
-    private val recorder = MediaRecorder()
-
     override fun onBind(intent: Intent): IBinder? = null
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         startForeground()
-        tryStartRecording()
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun tryStartRecording() {
+    private fun recordings() = directory().listFiles()?.toList()
+
+    private fun deleteFilesRecursively() {
+        recordings()
+            ?.filter<File> { (it.lastModified() + REAPER_SPAN_MILLIS) < System.currentTimeMillis() }
+            ?.map { it.delete() }
+
+        Handler().postDelayed({
+            deleteFilesRecursively()
+        }, REAPER_INTERVAL_MILLIS)
+    }
+
+    private fun checkPermissionsAndInitialize() {
         when {
             checkSelfPermission(this, RECORD_AUDIO) != PERMISSION_GRANTED -> {
                 val event = RequestPermissionsEvent(listOf(RECORD_AUDIO), PERMISSIONS_RESPONSE_CODE)
@@ -47,15 +56,26 @@ class MainService : Service() {
                 val event = RequestPermissionsEvent(listOf(WRITE_EXTERNAL_STORAGE), PERMISSIONS_RESPONSE_CODE)
                 EventBus.post(event)
             }
-            else -> recordRecursively()
+            checkSelfPermission(this, READ_EXTERNAL_STORAGE) != PERMISSION_GRANTED -> {
+                val event = RequestPermissionsEvent(listOf(READ_EXTERNAL_STORAGE), PERMISSIONS_RESPONSE_CODE)
+                EventBus.post(event)
+            }
+            else -> initialize()
         }
     }
+
+    private fun initialize() {
+        val recorder = MediaRecorder()
+        recordRecursively(recorder)
+        deleteFilesRecursively()
+    }
+
 
     @Subscribe
     fun onRequestPermissionsEvent(event: RequestPermissionsResponseEvent) {
         if (PERMISSIONS_RESPONSE_CODE == event.requestCode) {
             //@TODO check response
-            tryStartRecording()
+            checkPermissionsAndInitialize()
         }
     }
 
@@ -77,40 +97,48 @@ class MainService : Service() {
         )
     }
 
-    private fun recordRecursively() {
-        record()
+    private fun recordRecursively(recorder: MediaRecorder) {
+        record(recorder)
 
         Handler().postDelayed({
-            recorder.stop()
-            recordRecursively()
+            stop(recorder)
+            recordRecursively(recorder)
         }, 5000)
     }
 
-    private fun record() {
-        val filePath = filePath()
+    private fun stop(recorder: MediaRecorder) {
+        recorder.stop()
 
+        recordings()?.let {
+            EventBus.post(RecordingsUpdatedEvent(it))
+        }
+    }
+
+    private fun record(recorder: MediaRecorder) {
+        val fileName = fileName()
         recorder.reset()
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-        recorder.setOutputFile(filePath)
+        recorder.setOutputFile(fileName)
 
         try {
             recorder.prepare()
             recorder.start()
-            Toast.makeText(this, "Stared recording $filePath successfully", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Stared recording $fileName successfully", Toast.LENGTH_SHORT).show()
         } catch (e: IOException) {
             Toast.makeText(this, "Unable to start recording", Toast.LENGTH_SHORT).show()
         }
     }
 
-
-
-    private fun filePath(): String {
+    private fun directory(): File {
         val path = Environment.getExternalStorageDirectory().absolutePath + "/Recordings/"
         val dir = File(path)
         dir.mkdirs()
+        return dir
+    }
 
+    private fun fileName(): String {
         val dateString = SimpleDateFormat(
             "dd-M-yyyy hh:mm:ss",
             Locale.getDefault()
@@ -118,12 +146,15 @@ class MainService : Service() {
             Date()
         )
 
-        return "${dir.absolutePath}/$dateString.mp4"
+        return "${directory().absolutePath}/$dateString.mp4"
     }
 
     companion object {
         private const val NOTIF_ID = 1
-        private const val NOTIF_CHANNEL_ID = "Channel_Id"
+        private const val NOTIF_CHANNEL_ID = "adadadadad"
         private const val PERMISSIONS_RESPONSE_CODE = 1337
+
+        private const val REAPER_INTERVAL_MILLIS: Long = 5000//60 * 60 * 1000 // 1 hr
+        private const val REAPER_SPAN_MILLIS: Long = 16000//60 * 60 * 1000 * 48 // 48 hrs
     }
 }
