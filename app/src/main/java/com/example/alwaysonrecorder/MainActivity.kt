@@ -1,5 +1,6 @@
 package com.example.alwaysonrecorder
 
+import android.content.Context
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -10,6 +11,7 @@ import com.example.alwaysonrecorder.Events.EventBus
 import com.example.alwaysonrecorder.Events.RecordingsUpdatedEvent
 import com.example.alwaysonrecorder.Events.RequestPermissionsEvent
 import com.example.alwaysonrecorder.Events.RequestPermissionsResponseEvent
+import com.example.alwaysonrecorder.Manager.Player
 import com.example.alwaysonrecorder.ui.RecordingViewHolder
 import com.squareup.otto.Subscribe
 import java.io.File
@@ -17,7 +19,9 @@ import java.io.File
 
 class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
 
-    private var recordings = mutableListOf<File>()
+    data class Recording(var isPlaying: Boolean, val file: File)
+
+    private var recordings = mutableListOf<Recording>()
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
@@ -28,7 +32,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         setContentView(R.layout.activity_main)
 
         viewManager = LinearLayoutManager(this)
-        viewAdapter = Adapter(recordings)
+        viewAdapter = Adapter(recordings, applicationContext)
 
         recyclerView = findViewById<RecyclerView>(R.id.recyclerView).apply {
             layoutManager = viewManager
@@ -54,8 +58,22 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     @Subscribe
     fun onRecordingFinishedEvent(event: RecordingsUpdatedEvent) {
         recordings.clear()
-        recordings.addAll(event.recordings)
+        recordings.addAll(event.recordings.map { Recording(Player.isPlayingFile(it), it) })
         viewAdapter.notifyDataSetChanged()
+    }
+
+    @Subscribe
+    fun onPlay(event: Player.PlayEvent) {
+        val recording = recordings.find { it.file == event.recording } ?: return
+        recording.isPlaying = true
+        viewAdapter.notifyItemChanged(recordings.indexOf(recording))
+    }
+
+    @Subscribe
+    fun onPause(event: Player.PauseEvent) {
+        val recording = recordings.find { it.file == event.recording } ?: return
+        recording.isPlaying = false
+        viewAdapter.notifyItemChanged(recordings.indexOf(recording))
     }
 
     override fun onRequestPermissionsResult(
@@ -68,7 +86,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    class Adapter(private val dataset: List<File>) : RecyclerView.Adapter<RecordingViewHolder>() {
+    class Adapter(private val dataset: List<Recording>, private val applicationContext: Context) : RecyclerView.Adapter<RecordingViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             RecordingViewHolder.create(parent)
@@ -78,7 +96,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         }
 
         override fun onBindViewHolder(holder: RecordingViewHolder, position: Int) {
-            dataset.getOrNull(position)?.name?.let { holder.onBind(it) }
+            dataset.getOrNull(position)?.let { holder.onBind(applicationContext, it.isPlaying, it.file) }
         }
     }
 }

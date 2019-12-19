@@ -8,10 +8,8 @@ import android.content.Intent
 import android.content.pm.PackageManager.*
 import android.media.MediaRecorder
 import android.os.Build
-import android.os.Environment
 import android.os.Handler
 import android.os.IBinder
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat.checkSelfPermission
@@ -38,7 +36,7 @@ class MainService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun recordings() = directory().listFiles()?.toList()
+    private fun recordings() = directory().listFiles()?.toList()?.sortedDescending()
 
     private fun deleteFilesRecursively() {
         recordings()
@@ -145,6 +143,8 @@ class MainService : Service() {
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+        recorder.setAudioEncodingBitRate(128000)
+        recorder.setAudioSamplingRate(96000)
         recorder.setOutputFile(fileName)
 
         try {
@@ -175,7 +175,7 @@ class MainService : Service() {
         private const val NOTIF_ID = 1
         private const val PERMISSIONS_RESPONSE_CODE = 1337
 
-        private const val REAPER_INTERVAL_MILLIS: Long = 5000//60 * 60 * 1000 // 1 hr
-        private const val REAPER_SPAN_MILLIS: Long = 16000//60 * 60 * 1000 * 48 // 48 hrs
+        private const val REAPER_INTERVAL_MILLIS: Long = 5_000//60 * 60 * 1000 // 1 hr
+        private const val REAPER_SPAN_MILLIS: Long = 30_000//60 * 60 * 1000 * 48 // 48 hrs
     }
 }
