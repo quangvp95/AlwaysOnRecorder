@@ -1,7 +1,9 @@
 package com.example.alwaysonrecorder
 
 import android.content.Context
+import android.opengl.Visibility
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
@@ -23,8 +25,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     // State
     private var recordings = mutableListOf<Recording>()
-    private var isLoading: Boolean = true
 
+    private lateinit var spinner: ProgressBar
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
     private lateinit var viewManager: RecyclerView.LayoutManager
@@ -41,12 +43,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             adapter = viewAdapter
         }
 
-        findViewById<ProgressBar>(R.id.progressBar).apply {
-            if (isLoading)
-                this.animate().start()
-            else
-                this.animate().cancel()
-        }
+        spinner = findViewById(R.id.progressBar)
     }
 
     override fun onResume() {
@@ -68,6 +65,11 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     fun onRecordingFinishedEvent(event: RecordingsUpdatedEvent) {
         recordings.clear()
         recordings.addAll(event.recordings.map { Recording(Player.isPlayingFile(it), it) })
+
+        if (event.recordings.isNotEmpty()) {
+            spinner.visibility = View.GONE
+        }
+
         viewAdapter.notifyDataSetChanged()
     }
 

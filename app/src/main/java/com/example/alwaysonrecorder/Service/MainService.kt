@@ -33,11 +33,13 @@ class MainService : Service() {
     override fun onBind(intent: Intent): IBinder? = null
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        // Setup dependencies
         recordingRepository = RecordingRepository(application.filesDir)
         recorder = Recorder(MediaRecorder(), recordingRepository)
 
         startForeground()
-        checkPermissionsAndInitialize()
+        startRecursiveTasksIfPossible()
+        
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -58,7 +60,7 @@ class MainService : Service() {
         }, REAPER_INTERVAL_MILLIS)
     }
 
-    private fun checkPermissionsAndInitialize() {
+    private fun startRecursiveTasksIfPossible() {
         when {
             checkSelfPermission(this, RECORD_AUDIO) != PERMISSION_GRANTED -> {
                 val event = RequestPermissionsEvent(listOf(RECORD_AUDIO), PERMISSIONS_RESPONSE_CODE)
@@ -91,7 +93,7 @@ class MainService : Service() {
     fun onRequestPermissionsEvent(event: RequestPermissionsResponseEvent) {
         if (PERMISSIONS_RESPONSE_CODE == event.requestCode) {
             //@TODO check response
-            checkPermissionsAndInitialize()
+            startRecursiveTasksIfPossible()
         }
     }
 
@@ -111,8 +113,8 @@ class MainService : Service() {
             NOTIF_ID, NotificationCompat.Builder(this, channelId)
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_media_play)
-                .setContentTitle("Hello world")
-                .setContentText("Service is running background")
+                .setContentTitle("Say something smart!")
+                .setContentText("Always on recorder is running in the background")
                 .setContentIntent(pendingIntent)
                 .build()
         )
@@ -135,8 +137,8 @@ class MainService : Service() {
         private const val NOTIF_ID = 1
         private const val PERMISSIONS_RESPONSE_CODE = 1337
 
-        private const val RECORDING_INTERVAL: Long = 5_000
-        private const val REAPER_INTERVAL_MILLIS: Long = 5_000//60 * 60 * 1000 // 1 hr
-        private const val REAPER_SPAN_MILLIS: Long = 30_000
+        private const val RECORDING_INTERVAL: Long = 1000 * 60 * 60 // 1 hrs
+        private const val REAPER_INTERVAL_MILLIS: Long = 1000 * 60 * 60 * 48 // 48 hrs
+        private const val REAPER_SPAN_MILLIS: Long = 1000 * 60 * 60 // 1 hrs
     }
 }

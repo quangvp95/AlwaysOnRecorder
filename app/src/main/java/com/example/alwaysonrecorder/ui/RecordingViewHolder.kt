@@ -1,16 +1,15 @@
 package com.example.alwaysonrecorder.ui
 
 import android.content.Context
-import android.view.View
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
-import com.example.alwaysonrecorder.manager.Player
+import androidx.recyclerview.widget.RecyclerView
 import com.example.alwaysonrecorder.R
+import com.example.alwaysonrecorder.manager.Player
 import java.io.File
-
 
 class RecordingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 

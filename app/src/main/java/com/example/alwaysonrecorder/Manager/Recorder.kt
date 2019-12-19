@@ -12,6 +12,10 @@ class Recorder(
     private val recordingRepository: RecordingRepository
 ) {
 
+    init {
+        informAboutUpdate()
+    }
+
     fun stop() {
         try {
             mediaRecorder.stop()
@@ -19,9 +23,7 @@ class Recorder(
             println("Error!")
         }
 
-        recordingRepository.recordings()?.let {
-            EventBus.post(RecordingsUpdatedEvent(it))
-        }
+        informAboutUpdate()
     }
 
     fun record(context: Context) {
@@ -41,6 +43,12 @@ class Recorder(
                 .show()
         } catch (e: IOException) {
             Toast.makeText(context, "Unable to start recording", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun informAboutUpdate() {
+        recordingRepository.recordings()?.let {
+            EventBus.post(RecordingsUpdatedEvent(it))
         }
     }
 }
