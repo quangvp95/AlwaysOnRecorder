@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
-import com.example.alwaysonrecorder.Manager.Player
+import com.example.alwaysonrecorder.manager.Player
 import com.example.alwaysonrecorder.R
 import java.io.File
 

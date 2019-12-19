@@ -7,15 +7,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.alwaysonrecorder.Events.EventBus
-import com.example.alwaysonrecorder.Events.RecordingsUpdatedEvent
-import com.example.alwaysonrecorder.Events.RequestPermissionsEvent
-import com.example.alwaysonrecorder.Events.RequestPermissionsResponseEvent
-import com.example.alwaysonrecorder.Manager.Player
+import com.example.alwaysonrecorder.events.EventBus
+import com.example.alwaysonrecorder.events.RecordingsUpdatedEvent
+import com.example.alwaysonrecorder.events.RequestPermissionsEvent
+import com.example.alwaysonrecorder.events.RequestPermissionsResponseEvent
+import com.example.alwaysonrecorder.manager.Player
 import com.example.alwaysonrecorder.ui.RecordingViewHolder
 import com.squareup.otto.Subscribe
 import java.io.File
-
 
 class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
 

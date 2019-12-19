@@ -1,4 +1,4 @@
-package com.example.alwaysonrecorder.Events
+package com.example.alwaysonrecorder.events
 
 /**
  * Triggers a request permission dialog that responds with a RequestPermissionsResponseEvent

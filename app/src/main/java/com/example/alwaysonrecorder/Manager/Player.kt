@@ -1,10 +1,10 @@
-package com.example.alwaysonrecorder.Manager
+package com.example.alwaysonrecorder.manager
 
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.widget.Toast
-import com.example.alwaysonrecorder.Events.EventBus
+import com.example.alwaysonrecorder.events.EventBus
 import java.io.File
 import java.io.FileInputStream
 
