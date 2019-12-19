@@ -9,7 +9,8 @@ import java.io.IOException
 
 class Recorder(
     private val mediaRecorder: MediaRecorder,
-    private val recordingRepository: RecordingRepository) {
+    private val recordingRepository: RecordingRepository
+) {
 
     fun stop() {
         try {
@@ -36,7 +37,8 @@ class Recorder(
         try {
             mediaRecorder.prepare()
             mediaRecorder.start()
-            Toast.makeText(context, "Stared recording $fileName successfully", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Stared recording $fileName successfully", Toast.LENGTH_SHORT)
+                .show()
         } catch (e: IOException) {
             Toast.makeText(context, "Unable to start recording", Toast.LENGTH_SHORT).show()
         }

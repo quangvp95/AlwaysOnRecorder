@@ -3,6 +3,7 @@ package com.example.alwaysonrecorder
 import android.content.Context
 import android.os.Bundle
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,7 +21,9 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     data class Recording(var isPlaying: Boolean, val file: File)
 
+    // State
     private var recordings = mutableListOf<Recording>()
+    private var isLoading: Boolean = true
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
@@ -36,6 +39,13 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         recyclerView = findViewById<RecyclerView>(R.id.recyclerView).apply {
             layoutManager = viewManager
             adapter = viewAdapter
+        }
+
+        findViewById<ProgressBar>(R.id.progressBar).apply {
+            if (isLoading)
+                this.animate().start()
+            else
+                this.animate().cancel()
         }
     }
 
@@ -80,7 +90,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        //@TODO implement status
         EventBus.post(RequestPermissionsResponseEvent("perfect!", requestCode))
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }

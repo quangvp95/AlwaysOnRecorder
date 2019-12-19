@@ -16,10 +16,10 @@ import android.os.IBinder
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.core.app.NotificationCompat
+import com.example.alwaysonrecorder.MainActivity
 import com.example.alwaysonrecorder.events.EventBus
 import com.example.alwaysonrecorder.events.RequestPermissionsEvent
 import com.example.alwaysonrecorder.events.RequestPermissionsResponseEvent
-import com.example.alwaysonrecorder.MainActivity
 import com.example.alwaysonrecorder.manager.Recorder
 import com.example.alwaysonrecorder.manager.RecordingRepository
 import com.squareup.otto.Subscribe
@@ -101,17 +101,14 @@ class MainService : Service() {
             Intent(this, MainActivity::class.java), 0
         )
 
-        val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel("recorder", "Background recorder")
-        } else {
-            // If earlier version channel ID is not used
-            // https://developer.android.com/reference/android/support/v4/app/NotificationCompat.Builder.html#NotificationCompat.Builder(android.content.Context)
-            ""
-        }
+        // If earlier version channel ID is not used
+        // https://developer.android.com/reference/android/support/v4/app/NotificationCompat.Builder.html#NotificationCompat.Builder(android.content.Context)
+        val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            createNotificationChannel()
+        else ""
 
         startForeground(
             NOTIF_ID, NotificationCompat.Builder(this, channelId)
-                // don't forget create a notification channel first
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_media_play)
                 .setContentTitle("Hello world")
@@ -122,7 +119,10 @@ class MainService : Service() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun createNotificationChannel(channelId: String, channelName: String): String {
+    private fun createNotificationChannel(): String {
+        val channelId = "recorder"
+        val channelName = "Background recorder"
+
         val channel =
             NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
         (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)

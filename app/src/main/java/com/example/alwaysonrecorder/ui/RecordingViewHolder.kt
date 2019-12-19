@@ -22,7 +22,6 @@ class RecordingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val recordingViewHolder = LayoutInflater.from(parent.context)
                 .inflate(R.layout.recording_view_holder, parent, false)
 
-            // Return a new holder instance
             return RecordingViewHolder(recordingViewHolder!!)
         }
     }
