@@ -2,15 +2,18 @@ package com.example.alwaysonrecorder.Service
 
 import android.Manifest.permission.*
 import android.R
-import android.app.PendingIntent
-import android.app.Service
+import android.app.*
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.*
 import android.media.MediaRecorder
+import android.os.Build
 import android.os.Environment
 import android.os.Handler
 import android.os.IBinder
+import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.core.app.NotificationCompat
 import com.example.alwaysonrecorder.Events.EventBus
@@ -31,6 +34,7 @@ class MainService : Service() {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         startForeground()
+        checkPermissionsAndInitialize()
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -60,13 +64,12 @@ class MainService : Service() {
                 val event = RequestPermissionsEvent(listOf(READ_EXTERNAL_STORAGE), PERMISSIONS_RESPONSE_CODE)
                 EventBus.post(event)
             }
-            else -> initialize()
+            else -> startRecursiveTasks()
         }
     }
 
-    private fun initialize() {
-        val recorder = MediaRecorder()
-        recordRecursively(recorder)
+    private fun startRecursiveTasks() {
+        recordRecursively(MediaRecorder())
         deleteFilesRecursively()
     }
 
@@ -85,8 +88,16 @@ class MainService : Service() {
             Intent(this, MainActivity::class.java), 0
         )
 
+        val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationChannel("recorder", "Background recorder")
+        } else {
+            // If earlier version channel ID is not used
+            // https://developer.android.com/reference/android/support/v4/app/NotificationCompat.Builder.html#NotificationCompat.Builder(android.content.Context)
+            ""
+        }
+
         startForeground(
-            NOTIF_ID, NotificationCompat.Builder(this, NOTIF_CHANNEL_ID)
+            NOTIF_ID, NotificationCompat.Builder(this, channelId)
                 // don't forget create a notification channel first
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_media_play)
@@ -95,6 +106,16 @@ class MainService : Service() {
                 .setContentIntent(pendingIntent)
                 .build()
         )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createNotificationChannel(channelId: String, channelName: String): String {
+        val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
+        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+            .createNotificationChannel(channel)
+
+
+        return channelId
     }
 
     private fun recordRecursively(recorder: MediaRecorder) {
@@ -107,7 +128,11 @@ class MainService : Service() {
     }
 
     private fun stop(recorder: MediaRecorder) {
-        recorder.stop()
+        try {
+            recorder.stop()
+        } catch (e: IllegalStateException) {
+            println("Error!")
+        }
 
         recordings()?.let {
             EventBus.post(RecordingsUpdatedEvent(it))
@@ -132,10 +157,7 @@ class MainService : Service() {
     }
 
     private fun directory(): File {
-        val path = Environment.getExternalStorageDirectory().absolutePath + "/Recordings/"
-        val dir = File(path)
-        dir.mkdirs()
-        return dir
+        return application.filesDir
     }
 
     private fun fileName(): String {
@@ -151,7 +173,6 @@ class MainService : Service() {
 
     companion object {
         private const val NOTIF_ID = 1
-        private const val NOTIF_CHANNEL_ID = "adadadadad"
         private const val PERMISSIONS_RESPONSE_CODE = 1337
 
         private const val REAPER_INTERVAL_MILLIS: Long = 5000//60 * 60 * 1000 // 1 hr
