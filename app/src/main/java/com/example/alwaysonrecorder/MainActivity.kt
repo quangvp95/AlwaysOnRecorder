@@ -2,7 +2,9 @@ package com.example.alwaysonrecorder
 
 import android.content.Context
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,6 +27,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     private var recordings = mutableListOf<Recording>()
 
     private lateinit var recoringRepository: RecordingRepository
+    private lateinit var emptyTextView: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
     private lateinit var viewManager: RecyclerView.LayoutManager
@@ -42,6 +45,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             layoutManager = viewManager
             adapter = viewAdapter
         }
+
+        emptyTextView = findViewById(R.id.emptyTextView)
     }
 
     override fun onResume() {
@@ -80,6 +85,9 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     }
 
     private fun reload(files: List<File>) {
+        if (files.isNotEmpty())
+            emptyTextView.visibility = View.GONE
+
         recordings.clear()
         recordings.addAll(files.map { Recording(Player.isPlayingFile(it), it) })
         viewAdapter.notifyDataSetChanged()
