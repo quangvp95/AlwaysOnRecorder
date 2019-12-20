@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">AlwaysOnRecorder</string>
+    <string name="app_name">Always on recorder</string>
+    <string name="main_activity_title">Recordings</string>
+    <string name="no_recordings">No recordings yet...</string>
 </resources>

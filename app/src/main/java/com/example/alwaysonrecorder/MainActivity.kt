@@ -1,11 +1,8 @@
 package com.example.alwaysonrecorder
 
 import android.content.Context
-import android.opengl.Visibility
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,6 +12,7 @@ import com.example.alwaysonrecorder.events.RecordingsUpdatedEvent
 import com.example.alwaysonrecorder.events.RequestPermissionsEvent
 import com.example.alwaysonrecorder.events.RequestPermissionsResponseEvent
 import com.example.alwaysonrecorder.manager.Player
+import com.example.alwaysonrecorder.manager.RecordingRepository
 import com.example.alwaysonrecorder.ui.RecordingViewHolder
 import com.squareup.otto.Subscribe
 import java.io.File
@@ -26,7 +24,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     // State
     private var recordings = mutableListOf<Recording>()
 
-    private lateinit var spinner: ProgressBar
+    private lateinit var recoringRepository: RecordingRepository
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
     private lateinit var viewManager: RecyclerView.LayoutManager
@@ -35,6 +33,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        recoringRepository = RecordingRepository(application.filesDir)
+
         viewManager = LinearLayoutManager(this)
         viewAdapter = Adapter(recordings, applicationContext)
 
@@ -42,12 +42,11 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             layoutManager = viewManager
             adapter = viewAdapter
         }
-
-        spinner = findViewById(R.id.progressBar)
     }
 
     override fun onResume() {
         EventBus.register(this)
+        recoringRepository.recordings()?.let { reload(it) }
         super.onResume()
     }
 
@@ -63,14 +62,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     @Subscribe
     fun onRecordingFinishedEvent(event: RecordingsUpdatedEvent) {
-        recordings.clear()
-        recordings.addAll(event.recordings.map { Recording(Player.isPlayingFile(it), it) })
-
-        if (event.recordings.isNotEmpty()) {
-            spinner.visibility = View.GONE
-        }
-
-        viewAdapter.notifyDataSetChanged()
+        reload(event.recordings)
     }
 
     @Subscribe
@@ -85,6 +77,12 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         val recording = recordings.find { it.file == event.recording } ?: return
         recording.isPlaying = false
         viewAdapter.notifyItemChanged(recordings.indexOf(recording))
+    }
+
+    private fun reload(files: List<File>) {
+        recordings.clear()
+        recordings.addAll(files.map { Recording(Player.isPlayingFile(it), it) })
+        viewAdapter.notifyDataSetChanged()
     }
 
     override fun onRequestPermissionsResult(
