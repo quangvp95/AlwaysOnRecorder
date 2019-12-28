@@ -6,15 +6,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <Switch
+        android:id="@+id/enabled_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="40dp"
+        android:text="Recording enabled"
+        android:textColor="@color/text"
+        android:switchPadding="7dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/title_recording_length"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="20dp"
+        android:textColor="@color/text"
         android:text="Split recordings into chunks of "
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/enabled_switch" />
 
     <SeekBar
         android:id="@+id/seek_bar_recording_length"
@@ -31,6 +45,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Delete recordings every "
+        android:textColor="@color/text"
         android:layout_margin="20dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/seek_bar_recording_length" />
@@ -49,6 +64,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=""
+        android:textColor="@color/text"
         app:layout_constraintBottom_toBottomOf="@+id/title_recording_length"
         app:layout_constraintStart_toEndOf="@+id/title_recording_length"
         app:layout_constraintTop_toTopOf="@+id/title_recording_length" />
@@ -58,6 +74,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=""
+        android:textColor="@color/text"
         app:layout_constraintBottom_toBottomOf="@+id/title_deletion_interval"
         app:layout_constraintStart_toEndOf="@+id/title_deletion_interval"
         app:layout_constraintTop_toTopOf="@+id/title_deletion_interval" />

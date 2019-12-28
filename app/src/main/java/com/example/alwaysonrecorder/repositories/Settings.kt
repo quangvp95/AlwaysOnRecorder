@@ -5,8 +5,12 @@ object Settings {
     val ALLOWED_RECORDING_LENGTH_MINUTES = 1..120
     val ALLOWED_DELETION_TIME_HOURS = 1..48
 
+    var recordingEnabled: Boolean = true
+        private set
     var recordingTime: Long = 20 * 60 * 1000
+        private set
     var deletionTime: Long = 48 * 60 * 60 * 1000
+        private set
 
     /**
      * @throws OutOfRangeException - if minutes is not within allowed range
@@ -26,6 +30,10 @@ object Settings {
             throw OutOfRangeException()
 
         deletionTime = (hours * 60 * 60 * 1000).toLong()
+    }
+
+    fun setRecordingEnabled(enabled: Boolean) {
+        recordingEnabled = enabled
     }
 
     fun recordingTimeMinutes() = (recordingTime / 1000 / 60).toInt()

@@ -3,6 +3,7 @@ package com.example.alwaysonrecorder
 import android.os.Build
 import android.os.Bundle
 import android.widget.SeekBar
+import android.widget.Switch
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.alwaysonrecorder.repositories.Settings
@@ -46,6 +47,12 @@ class SettingsActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
                     Settings.ALLOWED_DELETION_TIME_HOURS.last - Settings.ALLOWED_DELETION_TIME_HOURS.first
                 this.progress =
                     Settings.deletionTimeHours() - Settings.ALLOWED_DELETION_TIME_HOURS.first
+            }
+        }
+
+        findViewById<Switch>(R.id.enabled_switch).apply {
+            this.setOnCheckedChangeListener { buttonView, isChecked ->
+                Settings.setRecordingEnabled(isChecked)
             }
         }
 
