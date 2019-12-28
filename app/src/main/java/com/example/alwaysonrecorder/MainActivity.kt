@@ -1,7 +1,10 @@
 package com.example.alwaysonrecorder
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -19,6 +22,7 @@ import com.example.alwaysonrecorder.ui.RecordingViewHolder
 import com.squareup.otto.Subscribe
 import java.io.File
 
+
 class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
 
     data class Recording(var isPlaying: Boolean, val file: File)
@@ -26,7 +30,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     // State
     private var recordings = mutableListOf<Recording>()
 
-    private lateinit var recoringRepository: RecordingRepository
+    private lateinit var recordingRepository: RecordingRepository
     private lateinit var emptyTextView: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
@@ -36,7 +40,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        recoringRepository = RecordingRepository(application.filesDir)
+        recordingRepository = RecordingRepository(application.filesDir)
 
         viewManager = LinearLayoutManager(this)
         viewAdapter = Adapter(recordings, applicationContext)
@@ -51,7 +55,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     override fun onResume() {
         EventBus.register(this)
-        recoringRepository.recordings()?.let { reload(it) }
+        recordingRepository.recordings()?.let { reload(it) }
         super.onResume()
     }
 
@@ -100,6 +104,17 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     ) {
         EventBus.post(RequestPermissionsResponseEvent("perfect!", requestCode))
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Todo only trigger action when item with correct Id is selected.
+        startActivity(Intent(this, SettingsActivity::class.java))
+        return true
     }
 
     class Adapter(private val dataset: List<Recording>, private val applicationContext: Context) : RecyclerView.Adapter<RecordingViewHolder>() {
