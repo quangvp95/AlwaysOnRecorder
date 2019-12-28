@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:text="Split recordings into chunks of:"
+        android:text="Split recordings into chunks of "
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -30,18 +30,36 @@
         android:id="@+id/title_deletion_interval"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Delete recordings every:"
+        android:text="Delete recordings every "
         android:layout_margin="20dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/seek_bar_recording_length" />
 
     <SeekBar
-        android:id="@+id/seekBar2"
+        android:id="@+id/seek_bar_deletion_interval"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title_deletion_interval" />
+
+    <TextView
+        android:id="@+id/value_recording_length"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        app:layout_constraintBottom_toBottomOf="@+id/title_recording_length"
+        app:layout_constraintStart_toEndOf="@+id/title_recording_length"
+        app:layout_constraintTop_toTopOf="@+id/title_recording_length" />
+
+    <TextView
+        android:id="@+id/value_deletion_interval"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        app:layout_constraintBottom_toBottomOf="@+id/title_deletion_interval"
+        app:layout_constraintStart_toEndOf="@+id/title_deletion_interval"
+        app:layout_constraintTop_toTopOf="@+id/title_deletion_interval" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

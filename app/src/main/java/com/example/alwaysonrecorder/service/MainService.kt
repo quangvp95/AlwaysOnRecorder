@@ -22,6 +22,7 @@ import com.example.alwaysonrecorder.events.RequestPermissionsEvent
 import com.example.alwaysonrecorder.events.RequestPermissionsResponseEvent
 import com.example.alwaysonrecorder.manager.Recorder
 import com.example.alwaysonrecorder.manager.RecordingRepository
+import com.example.alwaysonrecorder.repositories.Settings
 import com.squareup.otto.Subscribe
 
 
@@ -49,11 +50,11 @@ class MainService : Service() {
         Handler().postDelayed({
             recorder.stop()
             recordRecursively()
-        }, RECORDING_INTERVAL)
+        }, Settings.recordingTime)
     }
 
     private fun deleteFilesRecursively() {
-        recordingRepository.deleteFilesOlderThan(REAPER_SPAN_MILLIS)
+        recordingRepository.deleteFilesOlderThan(Settings.deletionTime)
 
         Handler().postDelayed({
             deleteFilesRecursively()
@@ -137,8 +138,6 @@ class MainService : Service() {
         private const val NOTIF_ID = 1
         private const val PERMISSIONS_RESPONSE_CODE = 1337
 
-        private const val RECORDING_INTERVAL: Long = 1000 * 60 * 60 // 1 hrs
-        private const val REAPER_INTERVAL_MILLIS: Long = 1000 * 60 * 60 * 48 // 48 hrs
-        private const val REAPER_SPAN_MILLIS: Long = 1000 * 60 * 60 // 1 hrs
+        private const val REAPER_INTERVAL_MILLIS: Long = 1000 * 60 * 60 // 1 hr
     }
 }
