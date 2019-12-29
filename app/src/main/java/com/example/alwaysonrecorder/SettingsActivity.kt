@@ -52,7 +52,7 @@ class SettingsActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
 
         findViewById<Switch>(R.id.enabled_switch).apply {
             this.setOnCheckedChangeListener { buttonView, isChecked ->
-                Settings.setRecordingEnabled(isChecked)
+                Settings.recordingEnabled = isChecked
             }
         }
 

@@ -2,10 +2,7 @@ package com.example.alwaysonrecorder.service
 
 import android.Manifest.permission.*
 import android.R
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.app.Service
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -26,19 +23,21 @@ import com.example.alwaysonrecorder.repositories.Settings
 import com.squareup.otto.Subscribe
 
 
-class MainService : Service() {
+class RecordingService : IntentService("recordingService") {
 
     private lateinit var recordingRepository: RecordingRepository
     private lateinit var recorder: Recorder
 
     override fun onBind(intent: Intent): IBinder? = null
+    override fun onHandleIntent(intent: Intent?) = Unit
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         // Setup dependencies
         recordingRepository = RecordingRepository(application.filesDir)
         recorder = Recorder(MediaRecorder(), recordingRepository)
 
-        startForeground()
+        stopForeground(false)
+        showNotification()
         startRecursiveTasksIfPossible()
         
         return super.onStartCommand(intent, flags, startId)
@@ -49,7 +48,10 @@ class MainService : Service() {
 
         Handler().postDelayed({
             recorder.stop()
-            recordRecursively()
+
+            if (Settings.recordingEnabled) {
+                recordRecursively()
+            }
         }, Settings.recordingTime)
     }
 
@@ -57,7 +59,9 @@ class MainService : Service() {
         recordingRepository.deleteFilesOlderThan(Settings.deletionTime)
 
         Handler().postDelayed({
-            deleteFilesRecursively()
+            if (Settings.recordingEnabled) {
+                deleteFilesRecursively()
+            }
         }, REAPER_INTERVAL_MILLIS)
     }
 
@@ -98,7 +102,7 @@ class MainService : Service() {
         }
     }
 
-    private fun startForeground() {
+    private fun showNotification() {
         val pendingIntent = PendingIntent.getActivity(
             this, 0,
             Intent(this, MainActivity::class.java), 0
@@ -126,10 +130,14 @@ class MainService : Service() {
         val channelId = "recorder"
         val channelName = "Background recorder"
 
-        val channel =
+
+
+        val notificationManager = (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+
+        notificationManager.cancelAll()
+        notificationManager.createNotificationChannel(
             NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
-        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-            .createNotificationChannel(channel)
+        )
 
         return channelId
     }

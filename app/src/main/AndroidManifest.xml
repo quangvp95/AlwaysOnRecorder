@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <service android:name=".service.MainService" />
+        <service android:name=".service.RecordingService" />
 
         <activity android:name=".MainActivity">
             <intent-filter>

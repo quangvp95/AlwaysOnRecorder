@@ -2,11 +2,20 @@ package com.example.alwaysonrecorder.repositories
 
 object Settings {
 
+    interface RecordingEnabledListener {
+        fun onRecordingEnabledChange(enabled: Boolean)
+    }
+
     val ALLOWED_RECORDING_LENGTH_MINUTES = 1..120
     val ALLOWED_DELETION_TIME_HOURS = 1..48
 
+    private var recordingEnabledListener: RecordingEnabledListener? = null
+
     var recordingEnabled: Boolean = true
-        private set
+        set(value) {
+            field = value
+            recordingEnabledListener?.onRecordingEnabledChange(value)
+        }
     var recordingTime: Long = 1000 * 3 //20 * 60 * 1000
         private set
     var deletionTime: Long = 1000 * 5 //48 * 60 * 60 * 1000
@@ -30,10 +39,6 @@ object Settings {
             throw OutOfRangeException()
 
         deletionTime = (hours * 60 * 60 * 1000).toLong()
-    }
-
-    fun setRecordingEnabled(enabled: Boolean) {
-        recordingEnabled = enabled
     }
 
     fun recordingTimeMinutes() = (recordingTime / 1000 / 60).toInt()
