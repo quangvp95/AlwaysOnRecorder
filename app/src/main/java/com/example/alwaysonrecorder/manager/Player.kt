@@ -18,6 +18,10 @@ object Player {
     private var currentlyPlaying: File? = null
 
     fun play(context: Context, recording: File) {
+        currentlyPlaying?.let {
+            if (it != recording) pause(it)
+        }
+
         currentlyPlaying = recording
 
         try {

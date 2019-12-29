@@ -7,9 +7,9 @@ object Settings {
 
     var recordingEnabled: Boolean = true
         private set
-    var recordingTime: Long = 20 * 60 * 1000
+    var recordingTime: Long = 1000 * 3 //20 * 60 * 1000
         private set
-    var deletionTime: Long = 48 * 60 * 60 * 1000
+    var deletionTime: Long = 1000 * 5 //48 * 60 * 60 * 1000
         private set
 
     /**
