@@ -1,5 +1,6 @@
 package com.example.alwaysonrecorder
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.widget.SeekBar
@@ -7,6 +8,8 @@ import android.widget.Switch
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.alwaysonrecorder.repositories.Settings
+import com.example.alwaysonrecorder.service.RecordingService
+import com.squareup.otto.Subscribe
 
 
 class SettingsActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
@@ -51,8 +54,15 @@ class SettingsActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         }
 
         findViewById<Switch>(R.id.enabled_switch).apply {
+            this.isChecked = Settings.recordingEnabled
+
             this.setOnCheckedChangeListener { buttonView, isChecked ->
                 Settings.recordingEnabled = isChecked
+
+                // Notify RecordingService that it should stop or continue recording
+                val intent = Intent(this@SettingsActivity, RecordingService::class.java)
+                intent.putExtra("recordingEnabled", isChecked)
+                application.startService(Intent(this@SettingsActivity, RecordingService::class.java))
             }
         }
 

@@ -16,9 +16,13 @@ class Recorder(
         informAboutUpdate()
     }
 
+    var isRecording: Boolean = false
+        private set
+
     fun stop() {
         try {
             mediaRecorder.stop()
+            isRecording = false
         } catch (e: IllegalStateException) {
             println("Error!")
         }
@@ -39,6 +43,7 @@ class Recorder(
         try {
             mediaRecorder.prepare()
             mediaRecorder.start()
+            isRecording = true
             Toast.makeText(context, "Stared recording $fileName successfully", Toast.LENGTH_SHORT)
                 .show()
         } catch (e: IOException) {

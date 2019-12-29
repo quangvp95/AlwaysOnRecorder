@@ -10,6 +10,7 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.core.app.NotificationCompat
@@ -23,28 +24,50 @@ import com.example.alwaysonrecorder.repositories.Settings
 import com.squareup.otto.Subscribe
 
 
-class RecordingService : IntentService("recordingService") {
+// TODO - don't use handlers, create background thread and start / stop that instead
+class RecordingService : Service() {
+
+    private val LOG_TAG = "${this.javaClass}"
 
     private lateinit var recordingRepository: RecordingRepository
     private lateinit var recorder: Recorder
 
     override fun onBind(intent: Intent): IBinder? = null
-    override fun onHandleIntent(intent: Intent?) = Unit
+
+    override fun onCreate() {
+        super.onCreate()
+        Log.d("${this.javaClass}", "onCreate called")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("${this.javaClass}", "onDestroy called")
+    }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        // Setup dependencies
-        recordingRepository = RecordingRepository(application.filesDir)
-        recorder = Recorder(MediaRecorder(), recordingRepository)
-
         stopForeground(false)
-        showNotification()
-        startRecursiveTasksIfPossible()
+
+        if (intent.hasExtra("recordingEnabled")) {
+            if (intent.getBooleanExtra("recordingEnabled", true) && recorder.isRecording) {
+                recorder.stop()
+                (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancelAll()
+            }
+        } else {
+            // Setup dependencies
+            recordingRepository = RecordingRepository(application.filesDir)
+            recorder = Recorder(MediaRecorder(), recordingRepository)
+
+            showNotification()
+            startRecursiveTasksIfPossible()
+        }
         
         return super.onStartCommand(intent, flags, startId)
     }
 
     private fun recordRecursively() {
-        recorder.record(this)
+        if (Settings.recordingEnabled) {
+            recorder.record(this)
+        }
 
         Handler().postDelayed({
             recorder.stop()

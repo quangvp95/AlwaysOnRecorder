@@ -1,21 +1,14 @@
 package com.example.alwaysonrecorder.repositories
 
-object Settings {
+import com.example.alwaysonrecorder.events.EventBus
 
-    interface RecordingEnabledListener {
-        fun onRecordingEnabledChange(enabled: Boolean)
-    }
+object Settings {
 
     val ALLOWED_RECORDING_LENGTH_MINUTES = 1..120
     val ALLOWED_DELETION_TIME_HOURS = 1..48
 
-    private var recordingEnabledListener: RecordingEnabledListener? = null
-
+    // State
     var recordingEnabled: Boolean = true
-        set(value) {
-            field = value
-            recordingEnabledListener?.onRecordingEnabledChange(value)
-        }
     var recordingTime: Long = 1000 * 3 //20 * 60 * 1000
         private set
     var deletionTime: Long = 1000 * 5 //48 * 60 * 60 * 1000
