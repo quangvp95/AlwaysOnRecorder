@@ -14,7 +14,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.core.app.NotificationCompat
-import com.example.alwaysonrecorder.MainActivity
+import com.example.alwaysonrecorder.activities.MainActivity
 import com.example.alwaysonrecorder.events.EventBus
 import com.example.alwaysonrecorder.events.RequestPermissionsEvent
 import com.example.alwaysonrecorder.events.RequestPermissionsResponseEvent

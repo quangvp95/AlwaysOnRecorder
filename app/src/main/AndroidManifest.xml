@@ -17,7 +17,7 @@
 
         <service android:name=".service.RecordingService" />
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -26,8 +26,12 @@
 
         <activity
             android:label="Settings"
-            android:name=".SettingsActivity"
-            android:parentActivityName=".MainActivity" />
+            android:name=".activities.SettingsActivity"
+            android:parentActivityName=".activities.MainActivity" />
+
+        <activity
+            android:name=".activities.PlayerActivity"
+            android:parentActivityName=".activities.MainActivity" />
 
     </application>
 

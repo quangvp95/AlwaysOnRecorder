@@ -1,4 +1,4 @@
-package com.example.alwaysonrecorder
+package com.example.alwaysonrecorder.activities
 
 import android.content.Context
 import android.content.Intent
@@ -8,10 +8,12 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.alwaysonrecorder.R
 import com.example.alwaysonrecorder.events.EventBus
 import com.example.alwaysonrecorder.events.RecordingsUpdatedEvent
 import com.example.alwaysonrecorder.events.RequestPermissionsEvent
@@ -25,10 +27,8 @@ import java.io.File
 
 class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
 
-    data class Recording(var isPlaying: Boolean, val file: File)
-
     // State
-    private var recordings = mutableListOf<Recording>()
+    private var recordings = mutableListOf<File>()
 
     private lateinit var recordingRepository: RecordingRepository
     private lateinit var emptyTextView: TextView
@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         recordingRepository = RecordingRepository(application.filesDir)
 
         viewManager = LinearLayoutManager(this)
-        viewAdapter = Adapter(recordings, applicationContext)
+        viewAdapter = Adapter(recordings, this)
 
         recyclerView = findViewById<RecyclerView>(R.id.recyclerView).apply {
             layoutManager = viewManager
@@ -74,26 +74,12 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         reload(event.recordings)
     }
 
-    @Subscribe
-    fun onPlay(event: Player.PlayEvent) {
-        val recording = recordings.find { it.file == event.recording } ?: return
-        recording.isPlaying = true
-        viewAdapter.notifyItemChanged(recordings.indexOf(recording))
-    }
-
-    @Subscribe
-    fun onPause(event: Player.PauseEvent) {
-        val recording = recordings.find { it.file == event.recording } ?: return
-        recording.isPlaying = false
-        viewAdapter.notifyItemChanged(recordings.indexOf(recording))
-    }
-
     private fun reload(files: List<File>) {
         if (files.isNotEmpty())
             emptyTextView.visibility = View.GONE
 
         recordings.clear()
-        recordings.addAll(files.map { Recording(Player.isPlayingFile(it), it) })
+        recordings.addAll(files)
         viewAdapter.notifyDataSetChanged()
     }
 
@@ -117,7 +103,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         return true
     }
 
-    class Adapter(private val dataset: List<Recording>, private val applicationContext: Context) : RecyclerView.Adapter<RecordingViewHolder>() {
+    class Adapter(private val dataset: List<File>, private val context: Context) :
+        RecyclerView.Adapter<RecordingViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             RecordingViewHolder.create(parent)
@@ -127,7 +114,18 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         }
 
         override fun onBindViewHolder(holder: RecordingViewHolder, position: Int) {
-            dataset.getOrNull(position)?.let { holder.onBind(applicationContext, it.isPlaying, it.file) }
+            dataset.getOrNull(position)?.let { file ->
+                val onClickHandler = { _: View ->
+                    if (Player.mount(file)) {
+                        val intent = Intent(context, PlayerActivity::class.java)
+                        context.startActivity(intent)
+                    } else {
+                        Toast.makeText(context, "Could not play file", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                holder.onBind(file.name, onClickHandler)
+            }
         }
     }
 }

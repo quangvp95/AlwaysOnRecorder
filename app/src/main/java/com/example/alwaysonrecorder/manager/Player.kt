@@ -3,50 +3,124 @@ package com.example.alwaysonrecorder.manager
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
-import android.widget.Toast
+import android.os.Handler
+import android.util.Log
 import com.example.alwaysonrecorder.events.EventBus
 import java.io.File
 import java.io.FileInputStream
+import kotlin.math.max
+import kotlin.math.min
 
 
 object Player {
 
-    class PlayEvent(val recording: File)
-    class PauseEvent(val recording: File)
+    data class UpdateEvent(
+        val isPlaying: Boolean,
+        val timestamp: Int,
+        val fileLength: Int
+    )
 
-    private lateinit var mediaPlayer: MediaPlayer
-    private var currentlyPlaying: File? = null
+    // State
+    private var mediaPlayer: MediaPlayer? = null
+    private var isPlaying: Boolean = false
 
-    fun play(context: Context, recording: File) {
-        currentlyPlaying?.let {
-            if (it != recording) pause(it)
-        }
+    private lateinit var handler: Handler
+    private lateinit var runnable: Runnable
 
-        currentlyPlaying = recording
-
+    fun mount(file: File): Boolean {
         try {
             mediaPlayer = MediaPlayer()
-            mediaPlayer.setDataSource(FileInputStream(recording).fd)
-            mediaPlayer.setAudioAttributes(
+            mediaPlayer?.setDataSource(FileInputStream(file).fd)
+            mediaPlayer?.setAudioAttributes(
                 AudioAttributes.Builder()
                     .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                     .build()
             )
-            mediaPlayer.prepare()
-            mediaPlayer.start()
-            mediaPlayer.setOnCompletionListener { if (currentlyPlaying == recording) pause(recording) }
 
-            EventBus.post(PlayEvent(recording))
+            mediaPlayer?.prepare()
+
+            mediaPlayer?.setOnCompletionListener {
+                if (isPlaying) {
+                    isPlaying = false
+                    mediaPlayer?.seekTo(0)
+                    sendUpdate()
+                }
+            }
         } catch (e: Exception) {
-            Toast.makeText(context, "Could not play file", Toast.LENGTH_SHORT).show()
+            Log.e("$this.javaClass", e.message, e)
+            return false
         }
+
+        return true
     }
 
-    fun pause(recording: File) {
-        currentlyPlaying = null
-        mediaPlayer.pause()
-        EventBus.post(PauseEvent(recording))
+    fun onResume() {
+        sendUpdate()
     }
 
-    fun isPlayingFile(file: File) = currentlyPlaying == file
+    fun onDestroy() {
+        pause()
+        mediaPlayer = null
+    }
+
+    fun forwardSeconds(seconds: Int) {
+        val player = mediaPlayer ?: return
+
+        val target = min(player.duration, player.currentPosition + seconds * 1000)
+
+        mediaPlayer?.seekTo(target)
+        sendUpdate()
+    }
+
+    fun rewindSeconds(seconds: Int) {
+        val player = mediaPlayer ?: return
+
+        val target = max(0, player.currentPosition - seconds * 1000)
+
+        mediaPlayer?.seekTo(target)
+        sendUpdate()
+    }
+
+    fun togglePlay(context: Context) {
+        if (isPlaying) pause() else play(context)
+        sendUpdate()
+    }
+
+    private fun scheduleUpdateLooper(context: Context) {
+        val delayMillis = 1000L
+
+        handler = Handler(context.mainLooper)
+        runnable = object : Runnable {
+            override fun run() {
+                if (isPlaying) {
+                    sendUpdate()
+                    Handler(context.mainLooper).postDelayed(this, delayMillis)
+                }
+            }
+        }
+
+        handler.postDelayed(runnable, delayMillis)
+    }
+
+    private fun clearUpdateLooper() {
+        handler.removeCallbacks(runnable)
+    }
+
+    private fun play(context: Context) {
+        mediaPlayer?.start()
+        isPlaying = true
+        scheduleUpdateLooper(context)
+    }
+
+    private fun pause() {
+        mediaPlayer?.pause()
+        isPlaying = false
+        clearUpdateLooper()
+    }
+
+    private fun sendUpdate() {
+        val player = mediaPlayer ?: return
+        EventBus.post(UpdateEvent(isPlaying, player.currentPosition, player.duration))
+    }
+
 }

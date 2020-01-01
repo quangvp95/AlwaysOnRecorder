@@ -1,4 +1,4 @@
-package com.example.alwaysonrecorder
+package com.example.alwaysonrecorder.activities
 
 import android.content.Intent
 import android.os.Build
@@ -7,9 +7,9 @@ import android.widget.SeekBar
 import android.widget.Switch
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.alwaysonrecorder.R
 import com.example.alwaysonrecorder.repositories.Settings
 import com.example.alwaysonrecorder.service.RecordingService
-import com.squareup.otto.Subscribe
 
 
 class SettingsActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
