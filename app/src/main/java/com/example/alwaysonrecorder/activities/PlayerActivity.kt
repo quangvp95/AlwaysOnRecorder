@@ -102,15 +102,15 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
     }
 
     override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        // todo
+
     }
 
     override fun onStartTrackingTouch(seekBar: SeekBar) {
-        // todo
+
     }
 
     override fun onStopTrackingTouch(seekBar: SeekBar) {
-        // todo
+        Player.onReleaseSeekBar(seekBar.progress)
     }
 
     override fun onClick(view: View) {

@@ -86,6 +86,12 @@ object Player {
         sendUpdate()
     }
 
+    fun onReleaseSeekBar(progress: Int) {
+        val player = mediaPlayer ?: return
+        player.seekTo(((progress / 100F) * player.duration).toInt())
+        sendUpdate()
+    }
+
     private fun scheduleUpdateLooper(context: Context) {
         val delayMillis = 1000L
 
@@ -122,5 +128,4 @@ object Player {
         val player = mediaPlayer ?: return
         EventBus.post(UpdateEvent(isPlaying, player.currentPosition, player.duration))
     }
-
 }

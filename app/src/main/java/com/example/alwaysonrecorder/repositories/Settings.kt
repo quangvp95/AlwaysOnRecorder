@@ -9,9 +9,9 @@ object Settings {
 
     // State
     var recordingEnabled: Boolean = true
-    var recordingTime: Long = 1000 * 6 //20 * 60 * 1000
+    var recordingTime: Long = 1000 * 21 //20 * 60 * 1000
         private set
-    var deletionTime: Long = 1000 * 100 //48 * 60 * 60 * 1000
+    var deletionTime: Long = 1000 * 500 //48 * 60 * 60 * 1000
         private set
 
     /**
