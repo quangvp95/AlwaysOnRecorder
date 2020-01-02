@@ -127,7 +127,9 @@ object Player {
     }
 
     private fun pause() {
-        mediaPlayer?.pause()
+        if (isPlaying)
+            mediaPlayer?.pause()
+
         isPlaying = false
         clearUpdateLooper()
     }

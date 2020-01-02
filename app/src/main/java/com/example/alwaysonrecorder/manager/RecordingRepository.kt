@@ -1,7 +1,6 @@
 package com.example.alwaysonrecorder.manager
 
-import com.example.alwaysonrecorder.events.EventBus
-import com.example.alwaysonrecorder.events.RecordingsUpdatedEvent
+import com.example.alwaysonrecorder.service.recording.backgroundtask.Recorder
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -23,5 +22,6 @@ class RecordingRepository(private val rootDirectory: File) {
             ?.map { it.delete() }
     }
 
-    fun recordings() = rootDirectory.listFiles()?.toList()?.sortedDescending()
+    fun recordings() =
+        rootDirectory.listFiles()?.toList()?.filter { it.absolutePath != Recorder.currentRecordingPath }?.sortedDescending()
 }

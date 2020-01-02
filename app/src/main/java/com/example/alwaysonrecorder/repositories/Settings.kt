@@ -1,7 +1,5 @@
 package com.example.alwaysonrecorder.repositories
 
-import com.example.alwaysonrecorder.events.EventBus
-
 object Settings {
 
     val ALLOWED_RECORDING_LENGTH_MINUTES = 1..120
@@ -9,9 +7,9 @@ object Settings {
 
     // State
     var recordingEnabled: Boolean = true
-    var recordingTime: Long = 1000 * 10 //20 * 60 * 1000
+    var recordingDurationMillis: Long = 1000 * 10 //20 * 60 * 1000
         private set
-    var deletionTime: Long = 1000 * 40 //48 * 60 * 60 * 1000
+    var deletionSpanMillis: Long = 1000 * 40 //48 * 60 * 60 * 1000
         private set
 
     /**
@@ -21,7 +19,7 @@ object Settings {
         if (!(minutes within ALLOWED_RECORDING_LENGTH_MINUTES))
             throw OutOfRangeException()
 
-        recordingTime = (minutes * 60 * 1000).toLong()
+        recordingDurationMillis = (minutes * 60 * 1000).toLong()
     }
 
     /**
@@ -31,11 +29,11 @@ object Settings {
         if (!(hours within ALLOWED_DELETION_TIME_HOURS))
             throw OutOfRangeException()
 
-        deletionTime = (hours * 60 * 60 * 1000).toLong()
+        deletionSpanMillis = (hours * 60 * 60 * 1000).toLong()
     }
 
-    fun recordingTimeMinutes() = (recordingTime / 1000 / 60).toInt()
-    fun deletionTimeHours() = (deletionTime / 1000 / 60 / 60).toInt()
+    fun recordingTimeMinutes() = (recordingDurationMillis / 1000 / 60).toInt()
+    fun deletionTimeHours() = (deletionSpanMillis / 1000 / 60 / 60).toInt()
 
     class OutOfRangeException : RuntimeException()
 }

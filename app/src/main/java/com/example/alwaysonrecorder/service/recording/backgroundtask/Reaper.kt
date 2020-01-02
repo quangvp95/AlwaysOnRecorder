@@ -11,12 +11,12 @@ class Reaper(private val recordingRepository: RecordingRepository) : BackgroundT
     override fun start(context: Context) {
         runnable?.let { handler?.removeCallbacks(it) }
 
-        val delayMillis = Settings.recordingTime
+        val delayMillis = Settings.recordingDurationMillis
 
         handler = Handler()
         runnable = object : Runnable {
             override fun run() {
-                recordingRepository.deleteFilesOlderThan(Settings.deletionTime)
+                recordingRepository.deleteFilesOlderThan(Settings.deletionSpanMillis)
                 recordingRepository.recordings()?.let { EventBus.post(RecordingsUpdatedEvent(it)) }
 
                 if (Settings.recordingEnabled) {
@@ -29,8 +29,6 @@ class Reaper(private val recordingRepository: RecordingRepository) : BackgroundT
     }
 
     override fun stop() {
-        runnable?.let { handler?.removeCallbacks(it) }
-        handler = null
-        runnable = null
+        clean()
     }
 }

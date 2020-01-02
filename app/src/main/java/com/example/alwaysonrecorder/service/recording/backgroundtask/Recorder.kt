@@ -16,26 +16,28 @@ class Recorder(
     private val recordingRepository: RecordingRepository
 ) : BackgroundTask() {
 
+    companion object {
+        var currentRecordingPath: String? = null
+            private set
+    }
+
+    init {
+        informAboutUpdate()
+    }
+
     var isRecording: Boolean = false
         private set
 
     override fun start(context: Context) {
-        // Stop and save current recording before
-        // cleaning up and starting a new recording
-        if (isRecording) {
-            stop()
-            start(context)
-            return
-        }
-
         clean()
 
-        val delayMillis = Settings.recordingTime
+        val delayMillis = Settings.recordingDurationMillis
 
         handler = Handler()
         runnable = object : Runnable {
             override fun run() {
-                stop()
+                if (isRecording)
+                    stop()
 
                 if (Settings.recordingEnabled) {
                     record(context)
@@ -49,8 +51,7 @@ class Recorder(
 
     override fun stop() {
         isRecording = false
-
-        clean()
+        currentRecordingPath = null
 
         try {
             mediaRecorder.stop()
@@ -63,8 +64,7 @@ class Recorder(
 
     private fun record(context: Context) {
         isRecording = true
-
-        val fileName = recordingRepository.fileName()
+        currentRecordingPath = recordingRepository.fileName()
 
         try {
             mediaRecorder.reset()
@@ -73,11 +73,11 @@ class Recorder(
             mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
             mediaRecorder.setAudioEncodingBitRate(128000)
             mediaRecorder.setAudioSamplingRate(96000)
-            mediaRecorder.setOutputFile(fileName)
+            mediaRecorder.setOutputFile(currentRecordingPath)
             mediaRecorder.prepare()
             mediaRecorder.start()
 
-            Toast.makeText(context, "Stared recording $fileName successfully", Toast.LENGTH_SHORT)
+            Toast.makeText(context, "Stared recording $currentRecordingPath successfully", Toast.LENGTH_SHORT)
                 .show()
         } catch (e: IOException) {
             Toast.makeText(context, "Unable to start recording", Toast.LENGTH_SHORT).show()
