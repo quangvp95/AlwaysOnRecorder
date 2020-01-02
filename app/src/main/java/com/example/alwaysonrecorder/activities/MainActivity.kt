@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     }
 
     @Subscribe
-    fun onRecordingFinishedEvent(event: RecordingsUpdatedEvent) {
+    fun onRecordingsUpdatedEvent(event: RecordingsUpdatedEvent) {
         reload(event.recordings)
     }
 

@@ -16,6 +16,7 @@ import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.core.app.NotificationCompat
 import com.example.alwaysonrecorder.activities.MainActivity
 import com.example.alwaysonrecorder.events.EventBus
+import com.example.alwaysonrecorder.events.RecordingsUpdatedEvent
 import com.example.alwaysonrecorder.events.RequestPermissionsEvent
 import com.example.alwaysonrecorder.events.RequestPermissionsResponseEvent
 import com.example.alwaysonrecorder.manager.Recorder
@@ -80,6 +81,9 @@ class RecordingService : Service() {
 
     private fun deleteFilesRecursively() {
         recordingRepository.deleteFilesOlderThan(Settings.deletionTime)
+        recordingRepository.recordings()?.let {
+            EventBus.post(RecordingsUpdatedEvent(it))
+        }
 
         Handler().postDelayed({
             if (Settings.recordingEnabled) {

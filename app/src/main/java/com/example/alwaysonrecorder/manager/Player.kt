@@ -21,12 +21,16 @@ object Player {
     )
 
     // State
+    var mountedFile: File? = null
+        private set
     private var mediaPlayer: MediaPlayer? = null
     private var isPlaying: Boolean = false
     private var handler: Handler? = null
     private var runnable: Runnable? = null
 
     fun mount(file: File): Boolean {
+        mountedFile = file
+
         try {
             mediaPlayer = MediaPlayer()
             mediaPlayer?.setDataSource(FileInputStream(file).fd)
@@ -59,6 +63,7 @@ object Player {
 
     fun onDestroy() {
         pause()
+        mountedFile = null
         mediaPlayer = null
     }
 

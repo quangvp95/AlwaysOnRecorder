@@ -1,5 +1,7 @@
 package com.example.alwaysonrecorder.manager
 
+import com.example.alwaysonrecorder.events.EventBus
+import com.example.alwaysonrecorder.events.RecordingsUpdatedEvent
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -17,6 +19,7 @@ class RecordingRepository(private val rootDirectory: File) {
     fun deleteFilesOlderThan(millis: Long) {
         recordings()
             ?.filter<File> { (it.lastModified() + millis) < System.currentTimeMillis() }
+            ?.filter { it != Player.mountedFile }
             ?.map { it.delete() }
     }
 
