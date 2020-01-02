@@ -10,7 +10,7 @@ class TimestampHelperTest {
 
     @Test
     fun `test thirty minutes three seconds`() {
-        val minutesAndSeconds = toMinutesAndSeconds(1_803_000)
+        val minutesAndSeconds = toMinutesAndSeconds(1_803_499)
 
         assertEquals(30, minutesAndSeconds.minutes)
         assertEquals(3, minutesAndSeconds.seconds)
@@ -25,11 +25,11 @@ class TimestampHelperTest {
     }
 
     @Test
-    fun `test one minute fiftythree seconds`() {
+    fun `test one minute fiftyfour seconds`() {
         val minutesAndSeconds = toMinutesAndSeconds(60_000 + 53_999)
 
         assertEquals(1, minutesAndSeconds.minutes)
-        assertEquals(53, minutesAndSeconds.seconds)
+        assertEquals(54, minutesAndSeconds.seconds)
     }
 
     @Test
