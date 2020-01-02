@@ -1,14 +1,16 @@
-package com.example.alwaysonrecorder.service
+package com.example.alwaysonrecorder.service.recording
 
 import android.Manifest.permission.*
 import android.R
-import android.app.*
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.media.MediaRecorder
 import android.os.Build
-import android.os.Handler
 import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -16,22 +18,20 @@ import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.core.app.NotificationCompat
 import com.example.alwaysonrecorder.activities.MainActivity
 import com.example.alwaysonrecorder.events.EventBus
-import com.example.alwaysonrecorder.events.RecordingsUpdatedEvent
 import com.example.alwaysonrecorder.events.RequestPermissionsEvent
 import com.example.alwaysonrecorder.events.RequestPermissionsResponseEvent
-import com.example.alwaysonrecorder.manager.Recorder
 import com.example.alwaysonrecorder.manager.RecordingRepository
-import com.example.alwaysonrecorder.repositories.Settings
+import com.example.alwaysonrecorder.service.recording.backgroundtask.Reaper
+import com.example.alwaysonrecorder.service.recording.backgroundtask.Recorder
 import com.squareup.otto.Subscribe
 
 
-// TODO - don't use handlers, create background thread and start / stop that instead
 class RecordingService : Service() {
 
-    private val LOG_TAG = "${this.javaClass}"
-
+    // State
     private lateinit var recordingRepository: RecordingRepository
     private lateinit var recorder: Recorder
+    private lateinit var reaper: Reaper
 
     override fun onBind(intent: Intent): IBinder? = null
 
@@ -49,53 +49,34 @@ class RecordingService : Service() {
         stopForeground(false)
 
         if (intent.hasExtra("recordingEnabled")) {
-            if (intent.getBooleanExtra("recordingEnabled", true) && recorder.isRecording) {
+            if (!intent.getBooleanExtra("recordingEnabled", true)
+                && ::recorder.isInitialized
+                && recorder.isRecording
+            ) {
                 recorder.stop()
                 (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancelAll()
             }
         } else {
             // Setup dependencies
             recordingRepository = RecordingRepository(application.filesDir)
+
             recorder = Recorder(MediaRecorder(), recordingRepository)
+            reaper = Reaper(recordingRepository)
 
             showNotification()
-            startRecursiveTasksIfPossible()
+            startBackgroundTasksIfPossible()
         }
-        
+
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun recordRecursively() {
-        if (Settings.recordingEnabled) {
-            recorder.record(this)
-        }
-
-        Handler().postDelayed({
-            recorder.stop()
-
-            if (Settings.recordingEnabled) {
-                recordRecursively()
-            }
-        }, Settings.recordingTime)
-    }
-
-    private fun deleteFilesRecursively() {
-        recordingRepository.deleteFilesOlderThan(Settings.deletionTime)
-        recordingRepository.recordings()?.let {
-            EventBus.post(RecordingsUpdatedEvent(it))
-        }
-
-        Handler().postDelayed({
-            if (Settings.recordingEnabled) {
-                deleteFilesRecursively()
-            }
-        }, REAPER_INTERVAL_MILLIS)
-    }
-
-    private fun startRecursiveTasksIfPossible() {
+    private fun startBackgroundTasksIfPossible() {
         when {
             checkSelfPermission(this, RECORD_AUDIO) != PERMISSION_GRANTED -> {
-                val event = RequestPermissionsEvent(listOf(RECORD_AUDIO), PERMISSIONS_RESPONSE_CODE)
+                val event = RequestPermissionsEvent(
+                    listOf(RECORD_AUDIO),
+                    PERMISSIONS_RESPONSE_CODE
+                )
                 EventBus.post(event)
             }
             checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) != PERMISSION_GRANTED -> {
@@ -112,20 +93,22 @@ class RecordingService : Service() {
                 )
                 EventBus.post(event)
             }
-            else -> startRecursiveTasks()
+            else -> {
+                startBackgroundTasks()
+            }
         }
     }
 
-    private fun startRecursiveTasks() {
-        recordRecursively()
-        deleteFilesRecursively()
+    private fun startBackgroundTasks() {
+        recorder.start(this)
+        reaper.start(this)
     }
 
     @Subscribe
     fun onRequestPermissionsEvent(event: RequestPermissionsResponseEvent) {
         if (PERMISSIONS_RESPONSE_CODE == event.requestCode) {
             //@TODO check response
-            startRecursiveTasksIfPossible()
+            startBackgroundTasksIfPossible()
         }
     }
 
@@ -158,8 +141,8 @@ class RecordingService : Service() {
         val channelName = "Background recorder"
 
 
-
-        val notificationManager = (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+        val notificationManager =
+            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
 
         notificationManager.cancelAll()
         notificationManager.createNotificationChannel(
@@ -172,7 +155,5 @@ class RecordingService : Service() {
     companion object {
         private const val NOTIF_ID = 1
         private const val PERMISSIONS_RESPONSE_CODE = 1337
-
-        private const val REAPER_INTERVAL_MILLIS: Long = 1000 * 60 * 60 // 1 hr
     }
 }

@@ -2,7 +2,7 @@ package com.example.alwaysonrecorder
 
 import android.app.Application
 import android.content.Intent
-import com.example.alwaysonrecorder.service.RecordingService
+import com.example.alwaysonrecorder.service.recording.RecordingService
 
 class App : Application() {
     override fun onCreate() {
