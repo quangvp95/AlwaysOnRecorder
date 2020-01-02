@@ -14,12 +14,12 @@ import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.alwaysonrecorder.R
-import com.example.alwaysonrecorder.events.EventBus
+import com.example.alwaysonrecorder.`object`.EventBus
 import com.example.alwaysonrecorder.events.RecordingsUpdatedEvent
 import com.example.alwaysonrecorder.events.RequestPermissionsEvent
 import com.example.alwaysonrecorder.events.RequestPermissionsResponseEvent
-import com.example.alwaysonrecorder.manager.Player
-import com.example.alwaysonrecorder.manager.RecordingRepository
+import com.example.alwaysonrecorder.`object`.Player
+import com.example.alwaysonrecorder.repositories.RecordingRepository
 import com.example.alwaysonrecorder.ui.RecordingViewHolder
 import com.squareup.otto.Subscribe
 import java.io.File
@@ -40,7 +40,10 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        recordingRepository = RecordingRepository(application.filesDir)
+        recordingRepository =
+            RecordingRepository(
+                application.filesDir
+            )
 
         viewManager = LinearLayoutManager(this)
         viewAdapter = Adapter(recordings, this)

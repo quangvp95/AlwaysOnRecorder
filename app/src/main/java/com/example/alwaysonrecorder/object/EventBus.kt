@@ -1,4 +1,4 @@
-package com.example.alwaysonrecorder.events
+package com.example.alwaysonrecorder.`object`
 
 import com.squareup.otto.Bus
 

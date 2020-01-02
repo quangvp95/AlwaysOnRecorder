@@ -8,10 +8,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.alwaysonrecorder.R
-import com.example.alwaysonrecorder.events.EventBus
+import com.example.alwaysonrecorder.`object`.EventBus
 import com.example.alwaysonrecorder.helper.TimestampHelper.padWithZero
 import com.example.alwaysonrecorder.helper.TimestampHelper.toMinutesAndSeconds
-import com.example.alwaysonrecorder.manager.Player
+import com.example.alwaysonrecorder.`object`.Player
 import com.squareup.otto.Subscribe
 
 

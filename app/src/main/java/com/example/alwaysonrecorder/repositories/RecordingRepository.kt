@@ -1,5 +1,6 @@
-package com.example.alwaysonrecorder.manager
+package com.example.alwaysonrecorder.repositories
 
+import com.example.alwaysonrecorder.`object`.Player
 import com.example.alwaysonrecorder.service.recording.backgroundtask.Recorder
 import java.io.File
 import java.text.SimpleDateFormat

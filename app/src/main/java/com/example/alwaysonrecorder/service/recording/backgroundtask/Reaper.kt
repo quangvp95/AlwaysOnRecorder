@@ -2,10 +2,10 @@ package com.example.alwaysonrecorder.service.recording.backgroundtask
 
 import android.content.Context
 import android.os.Handler
-import com.example.alwaysonrecorder.events.EventBus
+import com.example.alwaysonrecorder.`object`.EventBus
 import com.example.alwaysonrecorder.events.RecordingsUpdatedEvent
-import com.example.alwaysonrecorder.manager.RecordingRepository
-import com.example.alwaysonrecorder.repositories.Settings
+import com.example.alwaysonrecorder.repositories.RecordingRepository
+import com.example.alwaysonrecorder.`object`.Settings
 
 class Reaper(private val recordingRepository: RecordingRepository) : BackgroundTask() {
     override fun start(context: Context) {

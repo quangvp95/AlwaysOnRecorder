@@ -8,7 +8,7 @@ import android.widget.Switch
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.alwaysonrecorder.R
-import com.example.alwaysonrecorder.repositories.Settings
+import com.example.alwaysonrecorder.`object`.Settings
 import com.example.alwaysonrecorder.service.recording.RecordingService
 
 

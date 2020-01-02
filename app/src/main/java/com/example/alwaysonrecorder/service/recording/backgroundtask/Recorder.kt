@@ -5,10 +5,10 @@ import android.media.MediaRecorder
 import android.os.Handler
 import android.util.Log
 import android.widget.Toast
-import com.example.alwaysonrecorder.events.EventBus
+import com.example.alwaysonrecorder.`object`.EventBus
 import com.example.alwaysonrecorder.events.RecordingsUpdatedEvent
-import com.example.alwaysonrecorder.manager.RecordingRepository
-import com.example.alwaysonrecorder.repositories.Settings
+import com.example.alwaysonrecorder.repositories.RecordingRepository
+import com.example.alwaysonrecorder.`object`.Settings
 import java.io.IOException
 
 class Recorder(

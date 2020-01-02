@@ -1,11 +1,10 @@
-package com.example.alwaysonrecorder.manager
+package com.example.alwaysonrecorder.`object`
 
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.os.Handler
 import android.util.Log
-import com.example.alwaysonrecorder.events.EventBus
 import java.io.File
 import java.io.FileInputStream
 import kotlin.math.max
@@ -86,7 +85,9 @@ object Player {
     }
 
     fun togglePlay(context: Context) {
-        if (isPlaying) pause() else play(context)
+        if (isPlaying) pause() else play(
+            context
+        )
         sendUpdate()
     }
 
@@ -136,6 +137,12 @@ object Player {
 
     private fun sendUpdate() {
         val player = mediaPlayer ?: return
-        EventBus.post(UpdateEvent(isPlaying, player.currentPosition, player.duration))
+        EventBus.post(
+            UpdateEvent(
+                isPlaying,
+                player.currentPosition,
+                player.duration
+            )
+        )
     }
 }

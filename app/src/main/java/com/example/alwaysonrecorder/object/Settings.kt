@@ -1,4 +1,4 @@
-package com.example.alwaysonrecorder.repositories
+package com.example.alwaysonrecorder.`object`
 
 object Settings {
 

@@ -17,10 +17,10 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.core.app.NotificationCompat
 import com.example.alwaysonrecorder.activities.MainActivity
-import com.example.alwaysonrecorder.events.EventBus
+import com.example.alwaysonrecorder.`object`.EventBus
 import com.example.alwaysonrecorder.events.RequestPermissionsEvent
 import com.example.alwaysonrecorder.events.RequestPermissionsResponseEvent
-import com.example.alwaysonrecorder.manager.RecordingRepository
+import com.example.alwaysonrecorder.repositories.RecordingRepository
 import com.example.alwaysonrecorder.service.recording.backgroundtask.Reaper
 import com.example.alwaysonrecorder.service.recording.backgroundtask.Recorder
 import com.squareup.otto.Subscribe
@@ -58,7 +58,10 @@ class RecordingService : Service() {
             }
         } else {
             // Setup dependencies
-            recordingRepository = RecordingRepository(application.filesDir)
+            recordingRepository =
+                RecordingRepository(
+                    application.filesDir
+                )
 
             recorder = Recorder(MediaRecorder(), recordingRepository)
             reaper = Reaper(recordingRepository)
