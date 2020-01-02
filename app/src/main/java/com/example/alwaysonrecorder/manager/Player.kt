@@ -23,9 +23,8 @@ object Player {
     // State
     private var mediaPlayer: MediaPlayer? = null
     private var isPlaying: Boolean = false
-
-    private lateinit var handler: Handler
-    private lateinit var runnable: Runnable
+    private var handler: Handler? = null
+    private var runnable: Runnable? = null
 
     fun mount(file: File): Boolean {
         try {
@@ -105,16 +104,20 @@ object Player {
             }
         }
 
-        handler.postDelayed(runnable, delayMillis)
+        runnable?.let { handler?.postDelayed(it, delayMillis) }
     }
 
     private fun clearUpdateLooper() {
+        val handler = handler ?: return
+        val runnable = runnable ?: return
+
         handler.removeCallbacks(runnable)
     }
 
     private fun play(context: Context) {
         mediaPlayer?.start()
         isPlaying = true
+        clearUpdateLooper()
         scheduleUpdateLooper(context)
     }
 
