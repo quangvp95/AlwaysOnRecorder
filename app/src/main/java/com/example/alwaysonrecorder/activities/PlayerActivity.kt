@@ -1,19 +1,24 @@
 package com.example.alwaysonrecorder.activities
 
+import android.content.Intent
+import android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+import android.net.Uri
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.ImageButton
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import com.example.alwaysonrecorder.R
 import com.example.alwaysonrecorder.`object`.EventBus
+import com.example.alwaysonrecorder.`object`.Player
 import com.example.alwaysonrecorder.helper.TimestampHelper.padWithZero
 import com.example.alwaysonrecorder.helper.TimestampHelper.toMinutesAndSeconds
-import com.example.alwaysonrecorder.`object`.Player
 import com.squareup.otto.Subscribe
-
 
 class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
     View.OnClickListener {
@@ -57,6 +62,27 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         }
 
         timestampTextView = findViewById(R.id.time_text_view)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_player, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val recording = Player.mountedFile ?: return false
+        val intent = Intent(Intent.ACTION_SEND)
+
+        val uri = FileProvider.getUriForFile(
+            this,
+            "com.example.alwaysonrecorder.fileprovider",
+            recording
+        )
+
+        intent.setDataAndType(uri, contentResolver.getType(uri))
+        intent.flags = FLAG_GRANT_READ_URI_PERMISSION
+        startActivity(Intent.createChooser(intent, "Share recording"))
+        return true
     }
 
     override fun onResume() {
