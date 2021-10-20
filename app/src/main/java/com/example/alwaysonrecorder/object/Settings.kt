@@ -7,9 +7,12 @@ object Settings {
 
     // State
     var recordingEnabled: Boolean = true
+        get() = field
     var recordingDurationMillis: Long = 1000 * 10 //20 * 60 * 1000
+        get() = field
         private set
     var deletionSpanMillis: Long = 1000 * 40 //48 * 60 * 60 * 1000
+        get() = field
         private set
 
     /**

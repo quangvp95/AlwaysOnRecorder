@@ -60,7 +60,7 @@ class RecordingService : Service() {
             // Setup dependencies
             recordingRepository =
                 RecordingRepository(
-                    application.filesDir
+                    application.externalCacheDir!!
                 )
 
             recorder = Recorder(MediaRecorder(), recordingRepository)

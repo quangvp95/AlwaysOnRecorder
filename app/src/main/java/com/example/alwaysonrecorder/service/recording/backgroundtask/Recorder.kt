@@ -77,9 +77,11 @@ class Recorder(
             mediaRecorder.prepare()
             mediaRecorder.start()
 
+            Log.d("${this.javaClass}", "Stared recording $currentRecordingPath successfully")
             Toast.makeText(context, "Stared recording $currentRecordingPath successfully", Toast.LENGTH_SHORT)
                 .show()
         } catch (e: IOException) {
+            Log.e("${this.javaClass}", e.message, e)
             Toast.makeText(context, "Unable to start recording", Toast.LENGTH_SHORT).show()
         }
     }

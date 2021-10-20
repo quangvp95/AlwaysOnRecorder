@@ -38,22 +38,23 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+//        setContentView(R.layout.activity_main)
 
         recordingRepository =
             RecordingRepository(
                 application.filesDir
             )
 
-        viewManager = LinearLayoutManager(this)
-        viewAdapter = Adapter(recordings, this)
-
-        recyclerView = findViewById<RecyclerView>(R.id.recyclerView).apply {
-            layoutManager = viewManager
-            adapter = viewAdapter
-        }
-
-        emptyTextView = findViewById(R.id.emptyTextView)
+        finish()
+//        viewManager = LinearLayoutManager(this)
+//        viewAdapter = Adapter(recordings, this)
+//
+//        recyclerView = findViewById<RecyclerView>(R.id.recyclerView).apply {
+//            layoutManager = viewManager
+//            adapter = viewAdapter
+//        }
+//
+//        emptyTextView = findViewById(R.id.emptyTextView)
     }
 
     override fun onResume() {

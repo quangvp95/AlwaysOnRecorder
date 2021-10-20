@@ -25,7 +25,23 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
 
-        <service android:name=".service.recording.RecordingService" />
+        <service android:name=".service.recording.RecordingService"
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </service>
+
+        <service android:name=".service.recording.RecordingServiceJava"
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </service>
 
         <activity android:name=".activities.MainActivity">
             <intent-filter>
