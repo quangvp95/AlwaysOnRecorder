@@ -38,7 +38,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_main)
 
         recordingRepository =
             RecordingRepository(
@@ -46,15 +45,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             )
 
         finish()
-//        viewManager = LinearLayoutManager(this)
-//        viewAdapter = Adapter(recordings, this)
-//
-//        recyclerView = findViewById<RecyclerView>(R.id.recyclerView).apply {
-//            layoutManager = viewManager
-//            adapter = viewAdapter
-//        }
-//
-//        emptyTextView = findViewById(R.id.emptyTextView)
     }
 
     override fun onResume() {
@@ -107,30 +97,5 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         return true
     }
 
-    class Adapter(private val dataset: List<File>, private val context: Context) :
-        RecyclerView.Adapter<RecordingViewHolder>() {
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-            RecordingViewHolder.create(parent)
-
-        override fun getItemCount(): Int {
-            return dataset.count()
-        }
-
-        override fun onBindViewHolder(holder: RecordingViewHolder, position: Int) {
-            dataset.getOrNull(position)?.let { file ->
-                val onClickHandler = { _: View ->
-                    if (Player.mount(file)) {
-                        val intent = Intent(context, PlayerActivity::class.java)
-                        context.startActivity(intent)
-                    } else {
-                        Toast.makeText(context, "Could not play file", Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                holder.onBind(file.name, onClickHandler)
-            }
-        }
-    }
 }
 
