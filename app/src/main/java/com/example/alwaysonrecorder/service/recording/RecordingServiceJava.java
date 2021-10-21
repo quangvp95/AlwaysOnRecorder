@@ -1,6 +1,5 @@
 package com.example.alwaysonrecorder.service.recording;
 
-import android.R;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -17,16 +16,16 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.example.alwaysonrecorder.activities.MainActivity;
-import com.example.alwaysonrecorder.repositories.RecordingRepository;
-import com.example.alwaysonrecorder.service.recording.backgroundtask.Reaper;
-import com.example.alwaysonrecorder.service.recording.backgroundtask.Recorder;
+import com.example.alwaysonrecorder.repositories.RecordingRepositoryJava;
+import com.example.alwaysonrecorder.service.recording.backgroundtask.ReaperJava;
+import com.example.alwaysonrecorder.service.recording.backgroundtask.RecorderJava;
 
-class RecordingServiceJava extends Service {
+public class RecordingServiceJava extends Service {
 
     // State
-    private RecordingRepository recordingRepository;
-    private Recorder recorder;
-    private Reaper reaper;
+    private RecordingRepositoryJava recordingRepository;
+    private RecorderJava recorder;
+    private ReaperJava reaper;
 
     @Override
     public void onCreate() {
@@ -60,10 +59,10 @@ class RecordingServiceJava extends Service {
         } else {
             // Setup dependencies
             recordingRepository =
-                    new RecordingRepository(getApplication().getExternalCacheDir());
+                    new RecordingRepositoryJava(getApplication().getExternalCacheDir());
 
-            recorder = new Recorder(new MediaRecorder(), recordingRepository);
-            reaper = new Reaper(recordingRepository);
+            recorder = new RecorderJava(new MediaRecorder(), recordingRepository);
+            reaper = new ReaperJava(recordingRepository);
 
             showNotification();
             startBackgroundTasksIfPossible();
@@ -127,7 +126,7 @@ class RecordingServiceJava extends Service {
         startForeground(
                 1, new NotificationCompat.Builder(this, channelId)
                         .setOngoing(true)
-                        .setSmallIcon(R.drawable.ic_media_play)
+                        .setSmallIcon(android.R.drawable.ic_media_play)
                         .setContentTitle("Say something smart!")
                         .setContentText("Always on recorder is running in the background")
                         .setContentIntent(pendingIntent)

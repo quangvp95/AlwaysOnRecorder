@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.alwaysonrecorder.R
 import com.example.alwaysonrecorder.`object`.Settings
-import com.example.alwaysonrecorder.service.recording.RecordingService
+import com.example.alwaysonrecorder.service.recording.RecordingServiceJava
 
 
 class SettingsActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
@@ -60,9 +60,14 @@ class SettingsActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
                 Settings.recordingEnabled = isChecked
 
                 // Notify RecordingService that it should stop or continue recording
-                val intent = Intent(this@SettingsActivity, RecordingService::class.java)
+                val intent = Intent(this@SettingsActivity, RecordingServiceJava::class.java)
                 intent.putExtra("recordingEnabled", isChecked)
-                application.startService(Intent(this@SettingsActivity, RecordingService::class.java))
+                application.startService(
+                    Intent(
+                        this@SettingsActivity,
+                        RecordingServiceJava::class.java
+                    )
+                )
             }
         }
 

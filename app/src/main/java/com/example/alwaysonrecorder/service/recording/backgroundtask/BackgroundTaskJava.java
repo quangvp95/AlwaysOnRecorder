@@ -7,9 +7,9 @@ abstract class BackgroundTaskJava {
     protected Handler handler = null;
     protected Runnable runnable = null;
 
-    abstract void start(Context context);
+    public abstract void start(Context context);
 
-    abstract void stop();
+    public abstract void stop();
 
     void clean() {
         if (runnable != null && handler != null)

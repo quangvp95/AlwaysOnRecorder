@@ -1,26 +1,21 @@
 package com.example.alwaysonrecorder.activities
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.alwaysonrecorder.R
 import com.example.alwaysonrecorder.`object`.EventBus
 import com.example.alwaysonrecorder.events.RecordingsUpdatedEvent
 import com.example.alwaysonrecorder.events.RequestPermissionsEvent
 import com.example.alwaysonrecorder.events.RequestPermissionsResponseEvent
-import com.example.alwaysonrecorder.`object`.Player
 import com.example.alwaysonrecorder.repositories.RecordingRepository
-import com.example.alwaysonrecorder.ui.RecordingViewHolder
+import com.example.alwaysonrecorder.repositories.RecordingRepositoryJava
 import com.squareup.otto.Subscribe
 import java.io.File
 
@@ -31,6 +26,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     private var recordings = mutableListOf<File>()
 
     private lateinit var recordingRepository: RecordingRepository
+    private lateinit var recordingRepositoryJava: RecordingRepositoryJava
     private lateinit var emptyTextView: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
@@ -41,6 +37,10 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
         recordingRepository =
             RecordingRepository(
+                application.filesDir
+            )
+        recordingRepositoryJava =
+            RecordingRepositoryJava(
                 application.filesDir
             )
 

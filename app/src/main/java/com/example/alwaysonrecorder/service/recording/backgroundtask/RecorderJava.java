@@ -8,38 +8,38 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.alwaysonrecorder.object.Settings;
-import com.example.alwaysonrecorder.repositories.RecordingRepository;
+import com.example.alwaysonrecorder.repositories.RecordingRepositoryJava;
 
 import java.io.IOException;
 
-class RecorderJava extends BackgroundTaskJava {
-    private MediaRecorder mediaRecorder;
-    private RecordingRepository recordingRepository;
+public class RecorderJava extends BackgroundTaskJava {
+    public static String currentRecordingPath = null;
+    private final MediaRecorder mediaRecorder;
+    private final RecordingRepositoryJava recordingRepository;
+    boolean isRecording = false;
 
-    String currentRecordingPath = null;
-
-    public RecorderJava(MediaRecorder mediaRecorder, RecordingRepository recordingRepository) {
+    public RecorderJava(MediaRecorder mediaRecorder, RecordingRepositoryJava recordingRepository) {
         this.mediaRecorder = mediaRecorder;
         this.recordingRepository = recordingRepository;
         informAboutUpdate();
     }
 
-    Boolean isRecording = false;
+    public boolean isRecording() {
+        return isRecording;
+    }
 
     @Override
     public void start(@NonNull final Context context) {
         clean();
 
-        final long delayMillis = Settings.INSTANCE.getRecordingDurationMillis();
+        final long delayMillis = 5 * 60 * 1000;
         handler = new Handler();
         runnable = new Runnable() {
             @Override
             public void run() {
                 if (isRecording)
                     stop();
-
-                if (Settings.INSTANCE.getRecordingEnabled()) {
+                else {
                     record(context);
                     if (handler != null)
                         handler.postDelayed(this, delayMillis);
@@ -47,7 +47,7 @@ class RecorderJava extends BackgroundTaskJava {
             }
         };
 
-        handler.postDelayed(runnable, delayMillis);
+        handler.postDelayed(runnable, 5 * 1000);
     }
 
     @Override
@@ -82,7 +82,7 @@ class RecorderJava extends BackgroundTaskJava {
             Log.d("${this.javaClass}", "Stared recording $currentRecordingPath successfully");
             Toast.makeText(context, "Stared recording $currentRecordingPath successfully", Toast.LENGTH_SHORT)
                     .show();
-        } catch (IOException e){
+        } catch (IOException e) {
             Log.e("${this.javaClass}", e.getMessage(), e);
             Toast.makeText(context, "Unable to start recording", Toast.LENGTH_SHORT).show();
         }
