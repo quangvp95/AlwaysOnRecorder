@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 application.filesDir
             )
 
-        finish()
+//        finish()
     }
 
     override fun onResume() {

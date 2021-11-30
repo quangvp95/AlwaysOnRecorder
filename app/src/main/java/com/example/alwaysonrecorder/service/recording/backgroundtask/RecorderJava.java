@@ -52,13 +52,14 @@ public class RecorderJava extends BackgroundTaskJava {
 
     @Override
     public void stop() {
+        Log.d("QuangNHe", "Stop recording " + currentRecordingPath);
         isRecording = false;
         currentRecordingPath = null;
 
         try {
             mediaRecorder.stop();
         } catch (IllegalStateException e) {
-            Log.e("${this.javaClass}", e.getMessage(), e);
+            Log.e("QuangNHe", e.getMessage(), e);
         }
 
         informAboutUpdate();
@@ -79,12 +80,12 @@ public class RecorderJava extends BackgroundTaskJava {
             mediaRecorder.prepare();
             mediaRecorder.start();
 
-            Log.d("${this.javaClass}", "Stared recording $currentRecordingPath successfully");
-            Toast.makeText(context, "Stared recording $currentRecordingPath successfully", Toast.LENGTH_SHORT)
-                    .show();
-        } catch (IOException e) {
-            Log.e("${this.javaClass}", e.getMessage(), e);
-            Toast.makeText(context, "Unable to start recording", Toast.LENGTH_SHORT).show();
+            Log.d("QuangNHe", "Stared recording " + currentRecordingPath + " successfully");
+//            Toast.makeText(context, "Stared recording \" + currentRecordingPath + \" successfully", Toast.LENGTH_SHORT)
+//                    .show();
+        } catch (IOException e){
+            Log.e("QuangNHe", e.getMessage(), e);
+//            Toast.makeText(context, "Unable to start recording", Toast.LENGTH_SHORT).show();
         }
     }
 

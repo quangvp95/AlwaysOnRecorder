@@ -49,7 +49,7 @@ public class RecordingServiceJava extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         stopForeground(false);
 
-        if (intent.hasExtra("recordingEnabled")) {
+        if (intent !=null && intent.hasExtra("recordingEnabled")) {
             if (!intent.getBooleanExtra("recordingEnabled", true)
                     && recorder.isRecording()
             ) {
