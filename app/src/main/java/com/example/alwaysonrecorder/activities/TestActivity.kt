@@ -8,11 +8,14 @@ import com.example.alwaysonrecorder.pip.PipManager
 class TestActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_test)
+        val pipManager = PipManager(this)
+        pipManager.enterPip()
+        finish()
     }
 
     fun click(view: android.view.View) {
-        var pipManager = PipManager(this)
+        val pipManager = PipManager(this)
         pipManager.enterPip()
+        finish()
     }
 }
