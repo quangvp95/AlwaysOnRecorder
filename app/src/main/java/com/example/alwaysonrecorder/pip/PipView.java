@@ -170,12 +170,13 @@ public class PipView extends FrameLayout {
             mRecorder.setOrientationHint(90);
             //Set the maximum duration of the recording session (milliseconds)
             mRecorder.setMaxDuration(30 * 1000);
-            path = Environment.getExternalStorageDirectory().getPath() + File.separator + "VideoRecorder";
-            File dir = new File(path);
+            File dir1 = getContext().getExternalFilesDir(Environment.DIRECTORY_DCIM);
+            path = getContext().getExternalFilesDir(Environment.DIRECTORY_DCIM).getPath() + File.separator + "Android" + File.separator + "VideoRecorder";
+            File dir = new File(dir1, getDate() + ".mp4");
             if (!dir.exists()) {
                 boolean mkdir = dir.mkdir();
                 if (!mkdir)
-                    Log.e(TAG, "startRecord mkdir ERR");
+                    Log.e(TAG, "startRecord mkdir ERR " + path);
             }
             dirPath = dir.getAbsolutePath();
             path = dir.getAbsolutePath() + "/" + getDate() + ".mp4";
