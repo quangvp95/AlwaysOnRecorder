@@ -6,6 +6,7 @@ import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.hardware.Camera;
+import android.media.AudioManager;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Environment;
@@ -128,6 +129,22 @@ public class PipView extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+        int musicLevel = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        int systemLevel = audioManager.getStreamVolume(AudioManager.STREAM_SYSTEM);
+        int notificationLevel = audioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
+        int alarmLevel = audioManager.getStreamVolume(AudioManager.STREAM_ALARM);
+        int ringLevel = audioManager.getStreamVolume(AudioManager.STREAM_RING);
+        int voiceLevel = audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
+
+
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+        audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, 0, 0);
+        audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, 0, 0);
+        audioManager.setStreamVolume(AudioManager.STREAM_ALARM, 0, 0);
+        audioManager.setStreamVolume(AudioManager.STREAM_RING, 0, 0);
+        audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, 0, 0);
+
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -138,6 +155,12 @@ public class PipView extends FrameLayout {
             @Override
             public void run() {
                 stopRecord();
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, musicLevel, 0);
+                audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, systemLevel, 0);
+                audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, notificationLevel, 0);
+                audioManager.setStreamVolume(AudioManager.STREAM_ALARM, alarmLevel, 0);
+                audioManager.setStreamVolume(AudioManager.STREAM_RING, ringLevel, 0);
+                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, voiceLevel, 0);
             }
         }, 10000);
     }
