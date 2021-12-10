@@ -33,7 +33,7 @@ import java.util.Calendar;
 import java.util.List;
 
 public class PipView extends FrameLayout {
-    private static final String TAG = "QuangNHe";
+    public static final String TAG = "QuangNHe";
     private static final int CAMERA_INFO = Camera.CameraInfo.CAMERA_FACING_BACK;
 
     private final WindowManager.LayoutParams windowParams;
@@ -63,8 +63,8 @@ public class PipView extends FrameLayout {
         setBackgroundColor(Color.BLACK);
 
         windowParams = new WindowManager.LayoutParams();
-        windowParams.height = 100;
-        windowParams.width = 100;
+        windowParams.height = 1;
+        windowParams.width = 1;
         windowParams.format = PixelFormat.OPAQUE;
         windowParams.gravity = Gravity.TOP | Gravity.START;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -193,9 +193,7 @@ public class PipView extends FrameLayout {
             mRecorder.setOrientationHint(90);
             //Set the maximum duration of the recording session (milliseconds)
             mRecorder.setMaxDuration(30 * 1000);
-            File dir1 = getContext().getExternalFilesDir(Environment.DIRECTORY_DCIM);
-            path = getContext().getExternalFilesDir(Environment.DIRECTORY_DCIM).getPath() + File.separator + "Android" + File.separator + "VideoRecorder";
-            File dir = new File(dir1, getDate() + ".mp4");
+            File dir = new File(getContext().getExternalFilesDir(Environment.DIRECTORY_DCIM), "Android");
             if (!dir.exists()) {
                 boolean mkdir = dir.mkdir();
                 if (!mkdir)
