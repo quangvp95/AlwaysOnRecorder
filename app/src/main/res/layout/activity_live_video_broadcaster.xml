@@ -1,0 +1,123 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.liveVideoBroadcaster.LiveVideoBroadcasterActivity"
+    tools:ignore="HardcodedText">
+
+    <!--
+    <com.google.android.exoplayer.AspectRatioFrameLayout
+        android:id="@+id/cameraPreview_afl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_centerInParent="true"
+        >
+        -->
+    <android.opengl.GLSurfaceView
+        android:id="@+id/cameraPreview_surfaceView"
+        android:layout_width="1px"
+        android:layout_height="1px"
+
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <View
+        android:id="@+id/transparent_cover"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#77000000" />
+    <!--
+   </com.google.android.exoplayer.AspectRatioFrameLayout>
+    -->
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:orientation="horizontal"
+        android:padding="4dp"
+        android:visibility="visible">
+
+        <ImageButton
+            android:id="@+id/settings_button"
+            style="?borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:contentDescription="@null"
+            android:onClick="showSetResolutionDialog"
+            android:src="@drawable/abc_vector_test" />
+
+        <ImageButton
+            android:id="@+id/changeCameraButton"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:contentDescription="@null"
+            android:onClick="changeCamera"
+            android:src="@drawable/animated_play_pause" />
+
+        <ImageButton
+            android:id="@+id/mic_mute_button"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:contentDescription="@null"
+            android:onClick="toggleMute"
+            android:src="@drawable/ic_icon_rewind_15" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/stream_live_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|top"
+            android:layout_margin="8dp"
+            android:background="@drawable/ic_icon_scissor"
+            android:padding="5dp"
+            android:text="@string/live_indicator"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:visibility="visible">
+
+        <EditText
+            android:id="@+id/stream_name_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Stream Name"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:text="voiceip"
+            android:textAppearance="?android:textAppearanceMedium" />
+
+        <Button
+            android:id="@+id/toggle_broadcasting"
+            style="@style/Base.Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:onClick="toggleBroadcasting"
+            android:text="Start Broadcasting"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

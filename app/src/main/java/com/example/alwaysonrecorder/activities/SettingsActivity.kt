@@ -4,9 +4,9 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.widget.SeekBar
-import android.widget.Switch
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
 import com.example.alwaysonrecorder.R
 import com.example.alwaysonrecorder.`object`.Settings
 import com.example.alwaysonrecorder.service.recording.RecordingServiceJava
@@ -53,7 +53,7 @@ class SettingsActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
             }
         }
 
-        findViewById<Switch>(R.id.enabled_switch).apply {
+        findViewById<SwitchCompat>(R.id.enabled_switch).apply {
             this.isChecked = Settings.recordingEnabled
 
             this.setOnCheckedChangeListener { buttonView, isChecked ->
@@ -104,13 +104,13 @@ class SettingsActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
 
     private fun updateRecordingTimeTextView() {
         val minutes = Settings.recordingTimeMinutes()
-        var prefix = if (minutes == 1) "minute" else "minutes"
+        val prefix = if (minutes == 1) "minute" else "minutes"
         recordingLengthValueTextView.text = "$minutes $prefix"
     }
 
     private fun updateDeletionIntervalTextView() {
         val hours = Settings.deletionTimeHours()
-        var prefix = if (hours == 1) "hour" else "hours"
+        val prefix = if (hours == 1) "hour" else "hours"
         deletionIntervalValueTextView.text = "$hours $prefix"
     }
 }

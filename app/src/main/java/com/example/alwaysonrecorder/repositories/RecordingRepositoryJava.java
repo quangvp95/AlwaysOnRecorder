@@ -42,7 +42,7 @@ public class RecordingRepositoryJava {
     }
 
     public List<File> recordings() {
-        List<File> result = new ArrayList<File>();
+        List<File> result = new ArrayList<>();
         if (rootDirectory.listFiles() == null)
             return result;
 
