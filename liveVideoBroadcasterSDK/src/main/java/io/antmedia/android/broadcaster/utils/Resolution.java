@@ -14,4 +14,8 @@ public class Resolution implements Serializable {
         this.width = width;
         this.height = height;
     }
+
+    public int getArea() {
+        return width * height;
+    }
 }

@@ -1,9 +1,7 @@
 package com.example.alwaysonrecorder.activities
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -90,12 +88,5 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Todo only trigger action when item with correct Id is selected.
-        startActivity(Intent(this, SettingsActivity::class.java))
-        return true
-    }
-
 }
 

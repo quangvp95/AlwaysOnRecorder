@@ -13,9 +13,7 @@ import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -23,24 +21,18 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.widget.ContentLoadingProgressBar;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.example.alwaysonrecorder.R;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import io.antmedia.android.broadcaster.ILiveVideoBroadcaster;
 import io.antmedia.android.broadcaster.LiveVideoBroadcaster;
@@ -52,17 +44,11 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
     public static final String RTMP_BASE_URL = "rtmp://27.72.62.39/LiveApp/";
 
     private static final String TAG = LiveVideoBroadcasterActivity.class.getSimpleName();
-    public TimerHandler mTimerHandler;
     boolean mIsRecording = false;
     boolean mIsMuted = false;
     private ViewGroup mRootView;
     private EditText mStreamNameEditText;
-    private Timer mTimer;
-    private long mElapsedTime;
-    private ImageButton mSettingsButton;
-    private CameraResolutionsFragment mCameraResolutionsDialog;
     private Intent mLiveVideoBroadcasterServiceIntent;
-    private TextView mStreamLiveStatus;
     private GLSurfaceView mGLView;
     private ILiveVideoBroadcaster mLiveVideoBroadcaster;
     /**
@@ -79,6 +65,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
                 mLiveVideoBroadcaster = binder.getService();
                 mLiveVideoBroadcaster.init(LiveVideoBroadcasterActivity.this, mGLView);
                 mLiveVideoBroadcaster.setAdaptiveStreaming(true);
+                updateResolution();
             }
             mLiveVideoBroadcaster.openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT);
         }
@@ -133,12 +120,9 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_live_video_broadcaster);
 
-        mTimerHandler = new TimerHandler();
         mStreamNameEditText = findViewById(R.id.stream_name_edit_text);
 
         mRootView = findViewById(R.id.root_layout);
-        mSettingsButton = findViewById(R.id.settings_button);
-        mStreamLiveStatus = findViewById(R.id.stream_live_status);
 
         mBroadcastControlButton = findViewById(R.id.toggle_broadcasting);
 
@@ -211,10 +195,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
         super.onPause();
         Log.i(TAG, "onPause");
 
-        //hide dialog if visible not to create leaked window exception
-        if (mCameraResolutionsDialog != null && mCameraResolutionsDialog.isVisible()) {
-            mCameraResolutionsDialog.dismiss();
-        }
         mLiveVideoBroadcaster.pause();
     }
 
@@ -234,25 +214,25 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
 
     }
 
-    public void showSetResolutionDialog(View v) {
-
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        Fragment fragmentDialog = getSupportFragmentManager().findFragmentByTag("dialog");
-        if (fragmentDialog != null) {
-
-            ft.remove(fragmentDialog);
-        }
-
+    public void updateResolution() {
         ArrayList<Resolution> sizeList = mLiveVideoBroadcaster.getPreviewSizeList();
 
 
-        if (sizeList != null && sizeList.size() > 0) {
-            mCameraResolutionsDialog = new CameraResolutionsFragment();
-
-            mCameraResolutionsDialog.setCameraResolutions(sizeList, mLiveVideoBroadcaster.getPreviewSize());
-            mCameraResolutionsDialog.show(ft, "resolutiton_dialog");
-        } else {
+        if (sizeList == null || sizeList.size() <= 0) {
             Snackbar.make(mRootView, "No resolution available", Snackbar.LENGTH_LONG).show();
+        } else {
+            Resolution highestResolution = sizeList.get(0);
+            for (Resolution i : sizeList) {
+                if (highestResolution.getArea() < i.getArea()) {
+                    highestResolution = i;
+                }
+
+            }
+            setResolution(highestResolution);
+//            mCameraResolutionsDialog = new CameraResolutionsFragment();
+//
+//            mCameraResolutionsDialog.setCameraResolutions(sizeList, mLiveVideoBroadcaster.getPreviewSize());
+//            mCameraResolutionsDialog.show(ft, "resolutiton_dialog");
         }
 
     }
@@ -284,11 +264,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
                             progressBar.hide();
                             mIsRecording = result;
                             if (result) {
-                                mStreamLiveStatus.setVisibility(View.VISIBLE);
-
                                 mBroadcastControlButton.setText(R.string.stop_broadcasting);
-                                mSettingsButton.setVisibility(View.GONE);
-                                startTimer();//start the recording duration
                             } else {
                                 Snackbar.make(mRootView, "Failed to start. Please check server url and security credentials.", Snackbar.LENGTH_LONG).show();
 
@@ -322,68 +298,14 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
         if (mIsRecording) {
             mBroadcastControlButton.setText("Start Broadcasting");
 
-            mStreamLiveStatus.setVisibility(View.GONE);
-            mStreamLiveStatus.setText(R.string.live_indicator);
-            mSettingsButton.setVisibility(View.VISIBLE);
-
-            stopTimer();
             mLiveVideoBroadcaster.stopBroadcasting();
         }
 
         mIsRecording = false;
     }
 
-    //This method starts a mTimer and updates the textview to show elapsed time for recording
-    public void startTimer() {
-
-        if (mTimer == null) {
-            mTimer = new Timer();
-        }
-
-        mElapsedTime = 0;
-        mTimer.scheduleAtFixedRate(new TimerTask() {
-
-            public void run() {
-                mElapsedTime += 1; //increase every sec
-                mTimerHandler.obtainMessage(TimerHandler.INCREASE_TIMER).sendToTarget();
-
-                if (mLiveVideoBroadcaster == null || !mLiveVideoBroadcaster.isConnected()) {
-                    mTimerHandler.obtainMessage(TimerHandler.CONNECTION_LOST).sendToTarget();
-                }
-            }
-        }, 0, 1000);
-    }
-
-    public void stopTimer() {
-        if (mTimer != null) {
-            this.mTimer.cancel();
-        }
-        this.mTimer = null;
-        this.mElapsedTime = 0;
-    }
-
     public void setResolution(Resolution size) {
+        Snackbar.make(mRootView, "Set Resolution: " + size.width + " - " + size.height, Snackbar.LENGTH_LONG).show();
         mLiveVideoBroadcaster.setResolution(size);
-    }
-
-    private class TimerHandler extends Handler {
-        static final int CONNECTION_LOST = 2;
-        static final int INCREASE_TIMER = 1;
-
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case INCREASE_TIMER:
-                    mStreamLiveStatus.setText(getString(R.string.live_indicator) + " - " + getDurationString((int) mElapsedTime));
-                    break;
-                case CONNECTION_LOST:
-                    triggerStopRecording();
-                    new AlertDialog.Builder(LiveVideoBroadcasterActivity.this)
-                            .setMessage(R.string.broadcast_connection_lost)
-                            .setPositiveButton(android.R.string.yes, null)
-                            .show();
-
-                    break;
-            }
-        }
     }
 }

@@ -36,64 +36,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:orientation="horizontal"
-        android:padding="4dp"
-        android:visibility="visible">
-
-        <ImageButton
-            android:id="@+id/settings_button"
-            style="?borderlessButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:contentDescription="@null"
-            android:onClick="showSetResolutionDialog"
-            android:src="@drawable/abc_vector_test" />
-
-        <ImageButton
-            android:id="@+id/changeCameraButton"
-            style="?attr/borderlessButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:contentDescription="@null"
-            android:onClick="changeCamera"
-            android:src="@drawable/animated_play_pause" />
-
-        <ImageButton
-            android:id="@+id/mic_mute_button"
-            style="?attr/borderlessButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:contentDescription="@null"
-            android:onClick="toggleMute"
-            android:src="@drawable/ic_icon_rewind_15" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
-        <TextView
-            android:id="@+id/stream_live_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|top"
-            android:layout_margin="8dp"
-            android:background="@drawable/ic_icon_scissor"
-            android:padding="5dp"
-            android:text="@string/live_indicator"
-            android:visibility="gone" />
-
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="vertical"
         android:padding="24dp"
