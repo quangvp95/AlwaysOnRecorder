@@ -1,6 +1,7 @@
 package com.example.alwaysonrecorder.pip;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
@@ -32,16 +33,22 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 
+@SuppressWarnings("deprecation")
 public class PipView extends FrameLayout {
     public static final String TAG = "QuangNHe";
     private static final int CAMERA_INFO = Camera.CameraInfo.CAMERA_FACING_BACK;
+
+    private static final String RECORDER_INTENT = "com.example.quangnh.reaper";
+    private static final String PATH_EXTRA = "file_path";
+
+    private static final int DELAY_START_TIME = 2000;
+    private static final int RECORDER_TIME = 10000;
+    private static final int DELAY_STOP_TIME = DELAY_START_TIME + RECORDER_TIME;
 
     private final WindowManager.LayoutParams windowParams;
     private final Handler handler = new Handler();
     private WindowManager mWindowManager;
     private MediaRecorder mRecorder;
-    private boolean cameraReleaseEnable = true; //回收摄像头
-    private boolean recorderReleaseEnable = false; //回收recorder
     private boolean mStartedFlag = false; //录像中标志
 
     private String dirPath; //目标文件夹地址
@@ -86,7 +93,6 @@ public class PipView extends FrameLayout {
                 mCamera.startPreview();
                 mCamera.cancelAutoFocus();
                 mCamera.unlock();
-                cameraReleaseEnable = true;
             }
 
             @Override
@@ -145,24 +151,16 @@ public class PipView extends FrameLayout {
         audioManager.setStreamVolume(AudioManager.STREAM_RING, 0, 0);
         audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, 0, 0);
 
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                startRecord();
-            }
-        }, 2000);
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                stopRecord();
-                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, musicLevel, 0);
-                audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, systemLevel, 0);
-                audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, notificationLevel, 0);
-                audioManager.setStreamVolume(AudioManager.STREAM_ALARM, alarmLevel, 0);
-                audioManager.setStreamVolume(AudioManager.STREAM_RING, ringLevel, 0);
-                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, voiceLevel, 0);
-            }
-        }, 10000);
+        handler.postDelayed(this::startRecord, DELAY_START_TIME);
+        handler.postDelayed(() -> {
+            stopRecord();
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, musicLevel, 0);
+            audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, systemLevel, 0);
+            audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, notificationLevel, 0);
+            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, alarmLevel, 0);
+            audioManager.setStreamVolume(AudioManager.STREAM_RING, ringLevel, 0);
+            audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, voiceLevel, 0);
+        }, DELAY_STOP_TIME);
     }
 
     //Start recording
@@ -170,7 +168,6 @@ public class PipView extends FrameLayout {
         if (!mStartedFlag) {
             mStartedFlag = true;
             //start the timer
-            recorderReleaseEnable = true;
             mRecorder = new MediaRecorder();
             mRecorder.reset();
             mRecorder.setCamera(mCamera);
@@ -222,7 +219,7 @@ public class PipView extends FrameLayout {
             mStartedFlag = false;
             //End time in milliseconds
             long stopTime = System.currentTimeMillis();
-            Log.e(TAG, "stopRecord stopTime: " + stopTime);
+            Log.e(TAG, "stopRecord stopTime: " + stopTime + " | " + path);
 //          Method 1: Delay to ensure that the recording time is greater than 1s
 //            if (stopTime-startTime<1100) {
 //                Thread.sleep(1100+startTime-stopTime)
@@ -249,20 +246,22 @@ public class PipView extends FrameLayout {
                 mRecorder.stop();
                 mRecorder.reset();
                 mRecorder.release();
-                recorderReleaseEnable = false;
                 mCamera.lock();
                 mCamera.stopPreview();
                 mCamera.release();
-                cameraReleaseEnable = false;
             } catch (java.lang.RuntimeException e) {
                 //When catch to RuntimeException, it means that the recording time is too short,
                 // at this time it will be changed from recording to shooting
                 Log.e(TAG, "Shooting time is too short: " + e.getMessage());
                 mRecorder.reset();
                 mRecorder.release();
-                recorderReleaseEnable = false;
             }
             removeFromWindow();
+
+            Intent intent = new Intent(RECORDER_INTENT);
+            intent.putExtra(PATH_EXTRA, path);
+            intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+            getContext().sendBroadcast(intent);
         }
     }
 

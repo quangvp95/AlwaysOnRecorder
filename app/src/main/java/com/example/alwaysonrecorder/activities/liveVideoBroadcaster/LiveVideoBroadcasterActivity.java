@@ -21,12 +21,10 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.core.widget.ContentLoadingProgressBar;
 
 import com.example.alwaysonrecorder.R;
@@ -65,7 +63,6 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
                 mLiveVideoBroadcaster = binder.getService();
                 mLiveVideoBroadcaster.init(LiveVideoBroadcasterActivity.this, mGLView);
                 mLiveVideoBroadcaster.setAdaptiveStreaming(true);
-                updateResolution();
             }
             mLiveVideoBroadcaster.openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT);
         }
@@ -195,7 +192,8 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
         super.onPause();
         Log.i(TAG, "onPause");
 
-        mLiveVideoBroadcaster.pause();
+        if (mLiveVideoBroadcaster != null)
+            mLiveVideoBroadcaster.pause();
     }
 
     @Override
@@ -242,6 +240,7 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
             if (mLiveVideoBroadcaster != null) {
                 if (!mLiveVideoBroadcaster.isConnected()) {
                     String streamName = mStreamNameEditText.getText().toString();
+                    updateResolution();
 
                     new AsyncTask<String, String, Boolean>() {
                         ContentLoadingProgressBar
@@ -284,15 +283,15 @@ public class LiveVideoBroadcasterActivity extends AppCompatActivity {
 
     }
 
-    public void toggleMute(View v) {
-        if (v instanceof ImageView) {
-            ImageView iv = (ImageView) v;
-            mIsMuted = !mIsMuted;
-            mLiveVideoBroadcaster.setAudioEnable(!mIsMuted);
-            iv.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
-                    mIsMuted ? R.drawable.animated_play_pause : R.drawable.abc_vector_test, null));
-        }
-    }
+//    public void toggleMute(View v) {
+//        if (v instanceof ImageView) {
+//            ImageView iv = (ImageView) v;
+//            mIsMuted = !mIsMuted;
+//            mLiveVideoBroadcaster.setAudioEnable(!mIsMuted);
+//            iv.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
+//                    mIsMuted ? R.drawable.animated_play_pause : R.drawable.abc_vector_test, null));
+//        }
+//    }
 
     public void triggerStopRecording() {
         if (mIsRecording) {
